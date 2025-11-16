@@ -1,4 +1,7 @@
 (() => {
+  const VERSION = 'v1.0.0';
+  console.log('[TH] travelholic-ha bundle', VERSION);
+
   // Utility: wait for an element to appear, useful for SPA pages
   const waitFor = (selector, timeout = 10000) =>
     new Promise((resolve, reject) => {
@@ -23,7 +26,7 @@
 
   async function init() {
     try {
-      console.log('[TH] script initialized');
+      console.log('[TH] init start');
 
       const currentHost = window.location.hostname;
       const currentURL = window.location.href;
@@ -40,6 +43,7 @@
 
       // Mark the page as ready for custom styling/logic
       document.documentElement.classList.add('th-ready');
+      console.log('[TH] th-ready class added');
     } catch (err) {
       console.error('[TH] init error', err);
       document.documentElement.classList.remove('th-ready');
