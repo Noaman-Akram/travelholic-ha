@@ -30,13 +30,19 @@
 
       const currentHost = window.location.hostname;
       const currentURL = window.location.href;
+      const currentPath = (window.location.pathname || '/').toLowerCase();
       console.log('[TH] Host:', currentHost);
       console.log('[TH] URL:', currentURL);
+      console.log('[TH] Path:', currentPath);
 
-      if (currentHost === 'book.travelholiceg.com') {
-        console.log('[TH] Redirecting to https://travelholiceg.com/');
+      const isRoot = currentPath === '/' || currentPath === '' || currentPath === '/index.html';
+
+      if (currentHost === 'book.travelholiceg.com' && isRoot) {
+        console.log('[TH] Redirecting root to https://travelholiceg.com/');
         window.location.replace('https://travelholiceg.com/');
         return;
+      } else if (currentHost === 'book.travelholiceg.com') {
+        console.log('[TH] On booking subdomain (non-root) — no redirect.');
       } else {
         console.log('[TH] Not on book.travelholiceg.com — no redirect.');
       }
