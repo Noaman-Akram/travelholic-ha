@@ -136,4 +136,67 @@
       console.error('[TH] setupGoogleTranslate error', err);
     }
   }
+
+  // =======================
+// PAYMENT BUTTON LOGIC
+// =======================
+function modifyCheckoutPage() {
+  console.log('[TH] Looking for checkout payment section...');
+  
+  // Find payment section
+  const paymentSection = document.querySelector('[class*="payment"]') || 
+                         document.querySelector('form');
+  
+  if (!paymentSection) {
+    console.log('[TH] Payment section not found');
+    return false;
+  }
+
+  console.log('[TH] Found payment section!');
+
+  // Hide card inputs
+  const cardInputs = paymentSection.querySelectorAll('input[name*="card"]');
+  cardInputs.forEach(input => {
+    const container = input.closest('div');
+    if (container) container.style.display = 'none';
+  });
+
+  // Hide original submit buttons
+  const buttons = paymentSection.querySelectorAll('button[type="submit"]');
+  buttons.forEach(btn => btn.style.display = 'none');
+
+  // Add custom button
+  const customButton = document.createElement('button');
+  customButton.type = 'button';
+  customButton.textContent = '🔒 Proceed to Secure Payment';
+  customButton.style.cssText = `
+    width: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 16px 32px;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    margin: 20px 0;
+  `;
+
+  customButton.onclick = () => {
+    alert('Payment button clicked! ✅\nNext step: We will redirect to payment page');
+  };
+
+  paymentSection.appendChild(customButton);
+  console.log('[TH] ✅ Custom payment button added!');
+  return true;
+}
+
+// Try to modify checkout on page load
+if (window.location.href.includes('/checkout') || window.location.href.includes('/book/')) {
+  console.log('[TH] Checkout page detected!');
+  
+  setTimeout(() => {
+    modifyCheckoutPage();
+  }, 2000);
+}
 })();
