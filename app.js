@@ -183,22 +183,37 @@
   const customButton = document.createElement('button');
   customButton.id = 'th-payment-button';
   customButton.type = 'button';
-  customButton.textContent = '🔒 Proceed to Secure Payment';
-  customButton.style.cssText = `
-    width: 100%;
-    max-width: 800px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: none;
-    padding: 18px 32px;
-    border-radius: 12px;
-    font-size: 18px;
-    font-weight: 600;
-    cursor: pointer;
-    margin: 30px 0;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-    transition: transform 0.2s;
-  `;
+  customButton.textContent = 'Proceed to Secure Payment';
+customButton.style.cssText = `
+  border: 0.0625rem solid rgb(36, 54, 148);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  line-height: 1.25rem;
+  user-select: none;
+  text-decoration: none;
+  font-size: 1rem;
+  height: 3.25rem;
+  padding: 0px 1.5rem;
+  border-radius: 2.5rem;
+  background-color: rgb(36, 54, 148);
+  color: rgb(255, 255, 255);
+  width: auto;
+  margin: 30px 0;
+  transition: all 0.2s ease;
+`;
+
+customButton.onmouseover = () => {
+  customButton.style.transform = 'translateY(-2px)';
+  customButton.style.boxShadow = '0 4px 12px rgba(36, 54, 148, 0.3)';
+};
+
+customButton.onmouseout = () => {
+  customButton.style.transform = 'translateY(0)';
+  customButton.style.boxShadow = 'none';
+};
 
   customButton.onmouseover = () => {
     customButton.style.transform = 'translateY(-2px)';
