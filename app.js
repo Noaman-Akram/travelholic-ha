@@ -143,29 +143,40 @@
 function modifyCheckoutPage() {
   console.log('[TH] Looking for checkout payment section...');
   
-  // Find payment section
-  const paymentSection = document.querySelector('[class*="payment"]') || 
-                         document.querySelector('form');
+  // Find "Payment Information" heading
+  const paymentHeading = Array.from(document.querySelectorAll('h2')).find(
+    h => h.textContent.includes('Payment Information')
+  );
   
-  if (!paymentSection) {
-    console.log('[TH] Payment section not found');
+  if (!paymentHeading) {
+    console.log('[TH] Payment heading not found');
     return false;
   }
 
-  console.log('[TH] Found payment section!');
+  console.log('[TH] Found Payment Information section!');
 
-  // Hide card inputs
-  const cardInputs = paymentSection.querySelectorAll('input[name*="card"]');
-  cardInputs.forEach(input => {
-    const container = input.closest('div');
-    if (container) container.style.display = 'none';
+  // Get the parent container
+  const paymentSection = paymentHeading.closest('div').parentElement;
+  
+  // Hide all input fields in payment section (but keep the heading)
+  const inputs = paymentSection.querySelectorAll('input');
+  inputs.forEach(input => {
+    const wrapper = input.closest('div[class*="grid"]') || input.parentElement;
+    if (wrapper) wrapper.style.display = 'none';
   });
 
-  // Hide original submit buttons
-  const buttons = paymentSection.querySelectorAll('button[type="submit"]');
-  buttons.forEach(btn => btn.style.display = 'none');
+  console.log('[TH] Hidden', inputs.length, 'payment inputs');
 
-  // Add custom button
+  // Hide original Book Now button (usually at bottom)
+  const bookButtons = document.querySelectorAll('button[type="submit"]');
+  bookButtons.forEach(btn => {
+    if (btn.textContent.includes('Book') || btn.textContent.includes('Pay')) {
+      btn.style.display = 'none';
+      console.log('[TH] Hidden button:', btn.textContent);
+    }
+  });
+
+  // Add custom button AFTER the payment section
   const customButton = document.createElement('button');
   customButton.type = 'button';
   customButton.textContent = '🔒 Proceed to Secure Payment';
@@ -183,7 +194,7 @@ function modifyCheckoutPage() {
   `;
 
   customButton.onclick = () => {
-    alert('Payment button clicked! ✅\nNext step: We will redirect to payment page');
+    alert('Payment button clicked! ✅');
   };
 
   paymentSection.appendChild(customButton);
@@ -195,8 +206,10 @@ function modifyCheckoutPage() {
 if (window.location.href.includes('/checkout') || window.location.href.includes('/book/')) {
   console.log('[TH] Checkout page detected!');
   
-  setTimeout(() => {
-    modifyCheckoutPage();
-  }, 2000);
+  // Try multiple times (in case page loads slowly)
+  setTimeout(() => modifyCheckoutPage(), 1000);
+  setTimeout(() => modifyCheckoutPage(), 2000);
+  setTimeout(() => modifyCheckoutPage(), 3000);
 }
+  
 })();
