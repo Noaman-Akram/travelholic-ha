@@ -153,31 +153,30 @@ function modifyCheckoutPage() {
     return false;
   }
 
-  console.log('[TH] Found Payment Information section!');
-
-  // Get the parent container
-  const paymentSection = paymentHeading.closest('div').parentElement;
+  // Get the entire payment section (the div that contains Payment Information)
+  const paymentSection = paymentHeading.parentElement;
   
-  // Hide all input fields in payment section (but keep the heading)
-  const inputs = paymentSection.querySelectorAll('input');
-  inputs.forEach(input => {
-    const wrapper = input.closest('div[class*="grid"]') || input.parentElement;
-    if (wrapper) wrapper.style.display = 'none';
-  });
+  // Hide the ENTIRE payment section
+  paymentSection.style.display = 'none';
+  console.log('[TH] ✅ Hidden entire payment section!');
 
-  console.log('[TH] Hidden', inputs.length, 'payment inputs');
+  // Hide the blue "Finalize booking" button
+  const finalizeButton = Array.from(document.querySelectorAll('button')).find(
+    btn => btn.textContent.includes('Finalize booking')
+  );
+  if (finalizeButton) {
+    finalizeButton.style.display = 'none';
+    console.log('[TH] ✅ Hidden Finalize booking button!');
+  }
 
-  // Hide original Book Now button (usually at bottom)
-  const bookButtons = document.querySelectorAll('button[type="submit"]');
-  bookButtons.forEach(btn => {
-    if (btn.textContent.includes('Book') || btn.textContent.includes('Pay')) {
-      btn.style.display = 'none';
-      console.log('[TH] Hidden button:', btn.textContent);
-    }
-  });
+  // Add ONE custom button (check if already added)
+  if (document.getElementById('th-payment-button')) {
+    console.log('[TH] Button already added, skipping');
+    return true;
+  }
 
-  // Add custom button AFTER the payment section
   const customButton = document.createElement('button');
+  customButton.id = 'th-payment-button';
   customButton.type = 'button';
   customButton.textContent = '🔒 Proceed to Secure Payment';
   customButton.style.cssText = `
@@ -185,31 +184,48 @@ function modifyCheckoutPage() {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     border: none;
-    padding: 16px 32px;
-    border-radius: 8px;
+    padding: 18px 32px;
+    border-radius: 12px;
     font-size: 18px;
     font-weight: 600;
     cursor: pointer;
-    margin: 20px 0;
+    margin: 30px 0;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    transition: transform 0.2s;
   `;
 
-  customButton.onclick = () => {
-    alert('Payment button clicked! ✅');
+  customButton.onmouseover = () => {
+    customButton.style.transform = 'translateY(-2px)';
+  };
+  customButton.onmouseout = () => {
+    customButton.style.transform = 'translateY(0)';
   };
 
-  paymentSection.appendChild(customButton);
+  customButton.onclick = () => {
+    alert('✅ Payment button clicked!\n\nNext: We will extract booking data and redirect to payment page.');
+  };
+
+  // Insert button where "Finalize booking" was
+  if (finalizeButton) {
+    finalizeButton.parentElement.appendChild(customButton);
+  } else {
+    paymentSection.parentElement.appendChild(customButton);
+  }
+  
   console.log('[TH] ✅ Custom payment button added!');
   return true;
 }
 
-// Try to modify checkout on page load
+// Run ONCE when checkout page loads
 if (window.location.href.includes('/checkout') || window.location.href.includes('/book/')) {
   console.log('[TH] Checkout page detected!');
   
-  // Try multiple times (in case page loads slowly)
-  setTimeout(() => modifyCheckoutPage(), 1000);
-  setTimeout(() => modifyCheckoutPage(), 2000);
-  setTimeout(() => modifyCheckoutPage(), 3000);
+  // Wait for page to load, then run ONCE
+  setTimeout(() => {
+    if (!document.getElementById('th-payment-button')) {
+      modifyCheckoutPage();
+    }
+  }, 2000);
 }
   
 })();
