@@ -140,6 +140,99 @@
   // =======================
 // PAYMENT BUTTON LOGIC
 // =======================
+  javascriptfunction modifyCheckoutPage() {
+  console.log('[TH] Looking for payment fields...');
   
+  // Find "Payment Information" heading
+  const paymentHeading = Array.from(document.querySelectorAll('h2')).find(
+    h => h.textContent.includes('Payment Information')
+  );
+  
+  if (!paymentHeading) {
+    console.log('[TH] Payment heading not found');
+    return false;
+  }
+
+  console.log('[TH] Found Payment Information heading!');
+
+  // Find the container with all payment fields (the one with red border in your screenshot)
+  // It's the next sibling div after the heading
+  const paymentFieldsContainer = paymentHeading.nextElementSibling;
+  
+  if (paymentFieldsContainer) {
+    paymentFieldsContainer.style.display = 'none';
+    console.log('[TH] ✅ Hidden payment fields container!');
+  }
+
+  // Hide the "Finalize booking" button
+  const finalizeButton = Array.from(document.querySelectorAll('button')).find(
+    btn => btn.textContent.includes('Finalize booking')
+  );
+  if (finalizeButton) {
+    finalizeButton.style.display = 'none';
+    console.log('[TH] ✅ Hidden Finalize booking button!');
+  }
+
+  // Check if button already exists
+  if (document.getElementById('th-payment-button')) {
+    console.log('[TH] Button already exists');
+    return true;
+  }
+
+  // Create custom button
+  const customButton = document.createElement('button');
+  customButton.id = 'th-payment-button';
+  customButton.type = 'button';
+  customButton.textContent = '🔒 Proceed to Secure Payment';
+  customButton.style.cssText = `
+    width: 100%;
+    max-width: 800px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 18px 32px;
+    border-radius: 12px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    margin: 30px 0;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    transition: transform 0.2s;
+  `;
+
+  customButton.onmouseover = () => {
+    customButton.style.transform = 'translateY(-2px)';
+    customButton.style.boxShadow = '0 6px 20px rgba(102, 126, 234, 0.6)';
+  };
+  
+  customButton.onmouseout = () => {
+    customButton.style.transform = 'translateY(0)';
+    customButton.style.boxShadow = '0 4px 15px rgba(102, 126, 234, 0.4)';
+  };
+
+  customButton.onclick = () => {
+    alert('✅ Button clicked!\n\nReady to extract data and redirect.');
+  };
+
+  // Insert button right after the Payment Information heading
+  paymentHeading.parentElement.insertBefore(
+    customButton, 
+    paymentFieldsContainer.nextSibling
+  );
+  
+  console.log('[TH] ✅ Custom button added!');
+  return true;
+}
+
+// Run on checkout page
+if (window.location.href.includes('/checkout') || window.location.href.includes('/book/')) {
+  console.log('[TH] Checkout page detected!');
+  
+  setTimeout(() => {
+    if (!document.getElementById('th-payment-button')) {
+      modifyCheckoutPage();
+    }
+  }, 2000);
+}
   
 })();
