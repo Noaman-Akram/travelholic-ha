@@ -142,31 +142,9 @@
 // =======================
 
 
-  function modifyCheckoutPage() {
-  console.log('[TH] Looking for payment section...');
+ function modifyCheckoutPage() {
+  console.log('[TH] Looking for Finalize booking button...');
   
-  // Find "Payment Information" heading
-  const paymentHeading = Array.from(document.querySelectorAll('h2')).find(
-    h => h.textContent.includes('Payment Information')
-  );
-  
-  if (!paymentHeading) {
-    console.log('[TH] Payment heading not found');
-    return false;
-  }
-
-  console.log('[TH] Found Payment Information heading!');
-
-  // Hide the entire Payment Information section
-  const paymentSection = paymentHeading.parentElement;
-  paymentSection.style.display = 'none';
-  console.log('[TH] ✅ Hidden Payment Information section!');
-
-  // Find "Special requests" section
-  const specialRequestsHeading = Array.from(document.querySelectorAll('h2, h3, div')).find(
-    el => el.textContent.includes('Special requests')
-  );
-
   // Find "Finalize booking" button
   const finalizeButton = Array.from(document.querySelectorAll('button')).find(
     btn => btn.textContent.includes('Finalize booking')
@@ -179,12 +157,6 @@
 
   console.log('[TH] Found Finalize booking button!');
 
-  // Get the parent container of the button (has button + privacy text)
-  const buttonContainer = finalizeButton.parentElement;
-  
-  // Find the privacy text ("By clicking this button...")
-  const privacyText = buttonContainer.querySelector('div, p, span');
-
   // Check if custom button already exists
   if (document.getElementById('th-payment-button')) {
     console.log('[TH] Custom button already exists');
@@ -193,13 +165,12 @@
 
   // Hide original button
   finalizeButton.style.display = 'none';
-  console.log('[TH] ✅ Hidden Finalize booking button!');
 
   // Create custom button
   const customButton = document.createElement('button');
   customButton.id = 'th-payment-button';
   customButton.type = 'button';
-  customButton.textContent = 'Finalize booking';
+  customButton.textContent = 'Proceed to Secure Payment';
   customButton.style.cssText = `
     border: 0.0625rem solid rgb(36, 54, 148);
     cursor: pointer;
@@ -218,7 +189,6 @@
     color: rgb(255, 255, 255);
     width: 100%;
     max-width: 100%;
-    margin-bottom: 20px;
     transition: all 0.2s ease;
   `;
 
@@ -233,11 +203,11 @@
   };
 
   customButton.onclick = () => {
-    alert('✅ Payment button clicked!\n\nNext: Extract data and redirect to payment page.');
+    alert('✅ Payment button clicked!\n\nNext: Extract data and redirect.');
   };
 
-  // Insert custom button where original button was
-  buttonContainer.insertBefore(customButton, finalizeButton);
+  // Insert custom button right before the original button
+  finalizeButton.parentNode.insertBefore(customButton, finalizeButton);
   
   console.log('[TH] ✅ Custom payment button added!');
   return true;
