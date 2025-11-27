@@ -140,7 +140,7 @@
   // =======================
 // PAYMENT BUTTON LOGIC
 // =======================
-  javascriptfunction modifyCheckoutPage() {
+  function modifyCheckoutPage() {
   console.log('[TH] Looking for payment fields...');
   
   // Find "Payment Information" heading
