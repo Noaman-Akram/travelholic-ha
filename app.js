@@ -141,6 +141,143 @@
 // PAYMENT BUTTON LOGIC
 // =======================
 
+function extractBookingInfo() {
+  const info = {
+    timestamp: new Date().toISOString(),
+    url: window.location.href,
+    guest: {},
+    booking: {},
+    property: {},
+    pricing: {}
+  };
+
+  try {
+    // Extract all input fields
+    const inputs = document.querySelectorAll('input, textarea, select');
+    const formData = {};
+
+    inputs.forEach(input => {
+      const name = input.name || input.id || input.placeholder;
+      const value = input.value || input.textContent;
+
+      if (name && value) {
+        formData[name] = value;
+
+        // Categorize common fields
+        const nameLower = name.toLowerCase();
+
+        // Guest information
+        if (nameLower.includes('name') || nameLower.includes('first') || nameLower.includes('last')) {
+          info.guest.name = (info.guest.name || '') + ' ' + value;
+        }
+        if (nameLower.includes('email')) {
+          info.guest.email = value;
+        }
+        if (nameLower.includes('phone') || nameLower.includes('mobile')) {
+          info.guest.phone = value;
+        }
+        if (nameLower.includes('address')) {
+          info.guest.address = value;
+        }
+        if (nameLower.includes('city')) {
+          info.guest.city = value;
+        }
+        if (nameLower.includes('country')) {
+          info.guest.country = value;
+        }
+        if (nameLower.includes('zip') || nameLower.includes('postal')) {
+          info.guest.zipCode = value;
+        }
+
+        // Booking details
+        if (nameLower.includes('checkin') || nameLower.includes('check-in') || nameLower.includes('arrival')) {
+          info.booking.checkIn = value;
+        }
+        if (nameLower.includes('checkout') || nameLower.includes('check-out') || nameLower.includes('departure')) {
+          info.booking.checkOut = value;
+        }
+        if (nameLower.includes('adult')) {
+          info.booking.adults = value;
+        }
+        if (nameLower.includes('child')) {
+          info.booking.children = value;
+        }
+        if (nameLower.includes('guest') && nameLower.includes('number')) {
+          info.booking.numberOfGuests = value;
+        }
+        if (nameLower.includes('special') || nameLower.includes('request') || nameLower.includes('note')) {
+          info.booking.specialRequests = value;
+        }
+      }
+    });
+
+    // Store all form data
+    info.formData = formData;
+
+    // Extract pricing information from visible text
+    const priceElements = document.querySelectorAll('[class*="price"], [class*="total"], [class*="cost"], [class*="amount"]');
+    priceElements.forEach(el => {
+      const text = el.textContent.trim();
+      const label = el.previousElementSibling?.textContent || el.getAttribute('aria-label') || '';
+
+      if (text.match(/\$|€|£|[0-9]+\.[0-9]{2}/)) {
+        const labelLower = (label + text).toLowerCase();
+
+        if (labelLower.includes('total')) {
+          info.pricing.total = text;
+        } else if (labelLower.includes('subtotal')) {
+          info.pricing.subtotal = text;
+        } else if (labelLower.includes('tax')) {
+          info.pricing.tax = text;
+        } else if (labelLower.includes('fee')) {
+          info.pricing.fees = text;
+        } else if (labelLower.includes('discount')) {
+          info.pricing.discount = text;
+        }
+      }
+    });
+
+    // Extract property/listing name
+    const headings = document.querySelectorAll('h1, h2, h3, [class*="title"], [class*="property"], [class*="listing"]');
+    headings.forEach(h => {
+      const text = h.textContent.trim();
+      if (text && text.length > 3 && text.length < 100 && !info.property.name) {
+        info.property.name = text;
+      }
+    });
+
+    // Extract dates from visible elements if not found in inputs
+    if (!info.booking.checkIn || !info.booking.checkOut) {
+      const dateElements = document.querySelectorAll('[class*="date"], [class*="check"]');
+      dateElements.forEach(el => {
+        const text = el.textContent.trim();
+        const dateMatch = text.match(/\d{1,2}[-/]\d{1,2}[-/]\d{2,4}/);
+
+        if (dateMatch) {
+          const label = el.getAttribute('aria-label') || el.previousElementSibling?.textContent || '';
+          if (label.toLowerCase().includes('in') || label.toLowerCase().includes('arrival')) {
+            info.booking.checkIn = info.booking.checkIn || dateMatch[0];
+          } else if (label.toLowerCase().includes('out') || label.toLowerCase().includes('departure')) {
+            info.booking.checkOut = info.booking.checkOut || dateMatch[0];
+          }
+        }
+      });
+    }
+
+    // Clean up guest name
+    if (info.guest.name) {
+      info.guest.name = info.guest.name.trim();
+    }
+
+    console.log('[TH] Extraction complete:', info);
+
+  } catch (error) {
+    console.error('[TH] Error extracting booking info:', error);
+    info.error = error.message;
+  }
+
+  return info;
+}
 
  function modifyCheckoutPage() {
   console.log('[TH] Looking for Finalize booking button...');
@@ -203,7 +340,12 @@
   };
 
   customButton.onclick = () => {
-    alert('✅ Payment button clicked!\n\nNext: Extract data and redirect.');
+    console.log('[TH] Payment button clicked - extracting booking info...');
+
+    const bookingInfo = extractBookingInfo();
+
+    console.log('[TH] Extracted booking info:', bookingInfo);
+    alert('✅ Booking info extracted!\n\n' + JSON.stringify(bookingInfo, null, 2));
   };
 
   // Insert custom button right before the original button
