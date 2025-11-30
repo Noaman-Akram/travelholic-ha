@@ -355,15 +355,128 @@ function extractBookingInfo() {
   return true;
 }
 
-// Run on checkout page
-if (window.location.href.includes('/checkout') || window.location.href.includes('/book/')) {
-  console.log('[TH] Checkout page detected!');
-  
-  setTimeout(() => {
-    if (!document.getElementById('th-payment-button')) {
-      modifyCheckoutPage();
-    }
-  }, 2000);
+// =======================
+// SPA NAVIGATION HANDLER
+// =======================
+
+let lastUrl = location.href;
+let checkoutObserver = null;
+let checkInterval = null;
+
+function isCheckoutPage() {
+  return window.location.href.includes('/checkout') || window.location.href.includes('/book/');
 }
-  
+
+function tryAddCheckoutButton() {
+  if (!isCheckoutPage()) {
+    console.log('[TH] Not on checkout page, skipping...');
+    return;
+  }
+
+  if (document.getElementById('th-payment-button')) {
+    console.log('[TH] Custom button already exists, skipping...');
+    return;
+  }
+
+  const success = modifyCheckoutPage();
+  if (success) {
+    console.log('[TH] ✅ Successfully added custom button on checkout page');
+  }
+}
+
+// Watch for DOM changes (for React/SPA rendering)
+function startCheckoutObserver() {
+  if (checkoutObserver) return;
+
+  checkoutObserver = new MutationObserver(() => {
+    // Check if we're on checkout and button doesn't exist
+    if (isCheckoutPage() && !document.getElementById('th-payment-button')) {
+      tryAddCheckoutButton();
+    }
+  });
+
+  // Observe the entire document for changes
+  checkoutObserver.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+
+  console.log('[TH] MutationObserver started for checkout page detection');
+}
+
+// Watch for URL changes (SPA navigation)
+function watchUrlChanges() {
+  // Method 1: Override pushState and replaceState
+  const originalPushState = history.pushState;
+  const originalReplaceState = history.replaceState;
+
+  history.pushState = function() {
+    originalPushState.apply(this, arguments);
+    handleUrlChange();
+  };
+
+  history.replaceState = function() {
+    originalReplaceState.apply(this, arguments);
+    handleUrlChange();
+  };
+
+  // Method 2: Listen for popstate (back/forward navigation)
+  window.addEventListener('popstate', handleUrlChange);
+
+  // Method 3: Polling fallback (in case URL changes aren't caught)
+  checkInterval = setInterval(() => {
+    if (location.href !== lastUrl) {
+      handleUrlChange();
+    }
+  }, 500);
+
+  console.log('[TH] URL change detection activated');
+}
+
+function handleUrlChange() {
+  const currentUrl = location.href;
+
+  if (currentUrl !== lastUrl) {
+    console.log('[TH] URL changed from:', lastUrl);
+    console.log('[TH] URL changed to:', currentUrl);
+    lastUrl = currentUrl;
+
+    // Check if we navigated to checkout page
+    if (isCheckoutPage()) {
+      console.log('[TH] ✅ Navigated to checkout page!');
+      // Try immediately
+      setTimeout(tryAddCheckoutButton, 500);
+      // And try again after React finishes rendering
+      setTimeout(tryAddCheckoutButton, 1500);
+      setTimeout(tryAddCheckoutButton, 3000);
+    }
+  }
+}
+
+// Initialize checkout monitoring
+function initCheckoutMonitoring() {
+  console.log('[TH] Initializing checkout monitoring...');
+
+  // Start watching for URL changes
+  watchUrlChanges();
+
+  // Start watching for DOM changes
+  if (document.body) {
+    startCheckoutObserver();
+  } else {
+    document.addEventListener('DOMContentLoaded', startCheckoutObserver);
+  }
+
+  // Try immediately if already on checkout page
+  if (isCheckoutPage()) {
+    console.log('[TH] Already on checkout page, attempting to add button...');
+    setTimeout(tryAddCheckoutButton, 1000);
+    setTimeout(tryAddCheckoutButton, 2000);
+    setTimeout(tryAddCheckoutButton, 3000);
+  }
+}
+
+// Start monitoring
+initCheckoutMonitoring();
+
 })();
