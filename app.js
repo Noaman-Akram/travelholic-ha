@@ -141,6 +141,55 @@
 // PAYMENT BUTTON LOGIC
 // =======================
 
+function validateBookingForm() {
+  const errors = [];
+
+  // Check for required fields
+  const firstNameInput = document.querySelector('input[name*="first" i], input[placeholder*="first" i]');
+  const lastNameInput = document.querySelector('input[name*="last" i], input[placeholder*="last" i]');
+  const emailInput = document.querySelector('input[type="email"], input[name*="email" i]');
+  const phoneInput = document.querySelector('input[type="tel"], input[name*="phone" i]');
+
+  // Validate first name
+  if (!firstNameInput || !firstNameInput.value.trim() || firstNameInput.value.trim().length < 2) {
+    errors.push('First name is required and must be at least 2 characters');
+  }
+
+  // Validate last name
+  if (!lastNameInput || !lastNameInput.value.trim() || lastNameInput.value.trim().length < 2) {
+    errors.push('Last name is required and must be at least 2 characters');
+  }
+
+  // Validate email
+  if (!emailInput || !emailInput.value.trim()) {
+    errors.push('Email is required');
+  } else {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(emailInput.value.trim())) {
+      errors.push('Email must be a valid email address');
+    }
+  }
+
+  // Validate phone
+  if (!phoneInput || !phoneInput.value.trim() || phoneInput.value.trim().length < 5) {
+    errors.push('Phone number is required and must be valid');
+  }
+
+  // Check for any HTML5 validation errors
+  const allInputs = document.querySelectorAll('input, textarea, select');
+  allInputs.forEach(input => {
+    if (input.validity && !input.validity.valid) {
+      const fieldName = input.name || input.placeholder || input.id || 'A field';
+      errors.push(`${fieldName}: ${input.validationMessage}`);
+    }
+  });
+
+  return {
+    isValid: errors.length === 0,
+    errors: errors
+  };
+}
+
 function extractBookingInfo() {
   const info = {
     timestamp: new Date().toISOString(),
@@ -340,12 +389,23 @@ function extractBookingInfo() {
   };
 
   customButton.onclick = () => {
-    console.log('[TH] Payment button clicked - extracting booking info...');
+    console.log('[TH] Payment button clicked - validating form...');
+
+    // Validate form first
+    const validation = validateBookingForm();
+
+    if (!validation.isValid) {
+      console.error('[TH] Form validation failed:', validation.errors);
+      alert('❌ Please fix the following errors:\n\n' + validation.errors.join('\n'));
+      return;
+    }
+
+    console.log('[TH] ✅ Form validation passed - extracting booking info...');
 
     const bookingInfo = extractBookingInfo();
 
     console.log('[TH] Extracted booking info:', bookingInfo);
-    alert('✅ Booking info extracted!\n\n' + JSON.stringify(bookingInfo, null, 2));
+    alert('✅ Booking info validated and extracted!\n\n' + JSON.stringify(bookingInfo, null, 2));
   };
 
   // Insert custom button right before the original button
