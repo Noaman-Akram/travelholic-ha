@@ -1,0 +1,12 @@
+name = "travelholic-payment"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+
+# Public environment variables
+[vars]
+SUPERPAY_BASE_URL = "https://merchant.super-pay.com"
+SUPERPAY_MERCHANT_CODE = "SUPERPAY_MERCHANT01"
+
+# Secrets (add via: wrangler secret put SECRET_NAME)
+# - HOSTAWAY_BEARER_TOKEN
+# - SUPERPAY_API_KEY

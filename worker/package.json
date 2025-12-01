@@ -1,0 +1,24 @@
+{
+  "name": "travelholic-worker",
+  "version": "1.0.0",
+  "description": "Payment processing worker for Travelholic (Hostaway + Superpay)",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail",
+    "test": "wrangler dev --test"
+  },
+  "keywords": [
+    "cloudflare",
+    "worker",
+    "payments",
+    "hostaway",
+    "superpay"
+  ],
+  "author": "Travelholic",
+  "license": "ISC",
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+}

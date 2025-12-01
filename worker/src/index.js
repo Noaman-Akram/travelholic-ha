@@ -1,8 +1,6 @@
 /**
  * Travelholic Payment Worker
  * Cloudflare Worker for Hostaway + Superpay Integration
- *
- * SAVE THIS AS: src/index.js in your travelholic-worker folder
  */
 
 export default {
