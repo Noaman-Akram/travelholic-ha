@@ -141,8 +141,46 @@
 // PAYMENT BUTTON LOGIC
 // =======================
 
+function clearValidationErrors() {
+  // Remove all existing error messages
+  document.querySelectorAll('.th-error-message').forEach(el => el.remove());
+
+  // Remove error styling from inputs
+  document.querySelectorAll('.th-error-input').forEach(input => {
+    input.classList.remove('th-error-input');
+    input.style.borderColor = '';
+  });
+}
+
+function showFieldError(input, message) {
+  if (!input) return;
+
+  // Add error styling to input
+  input.classList.add('th-error-input');
+  input.style.borderColor = '#dc2626';
+  input.style.borderWidth = '2px';
+
+  // Create error message element
+  const errorEl = document.createElement('div');
+  errorEl.className = 'th-error-message';
+  errorEl.textContent = message;
+  errorEl.style.cssText = `
+    color: #dc2626;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+  `;
+
+  // Insert error message after the input
+  input.parentNode.insertBefore(errorEl, input.nextSibling);
+}
+
 function validateBookingForm() {
-  const errors = [];
+  // Clear previous errors
+  clearValidationErrors();
+
+  let isValid = true;
 
   // Check for required fields
   const firstNameInput = document.querySelector('input[name*="first" i], input[placeholder*="first" i]');
@@ -152,42 +190,44 @@ function validateBookingForm() {
 
   // Validate first name
   if (!firstNameInput || !firstNameInput.value.trim() || firstNameInput.value.trim().length < 2) {
-    errors.push('First name is required and must be at least 2 characters');
+    showFieldError(firstNameInput, 'First name is required (min 2 characters)');
+    isValid = false;
   }
 
   // Validate last name
   if (!lastNameInput || !lastNameInput.value.trim() || lastNameInput.value.trim().length < 2) {
-    errors.push('Last name is required and must be at least 2 characters');
+    showFieldError(lastNameInput, 'Last name is required (min 2 characters)');
+    isValid = false;
   }
 
   // Validate email
   if (!emailInput || !emailInput.value.trim()) {
-    errors.push('Email is required');
+    showFieldError(emailInput, 'Email is required');
+    isValid = false;
   } else {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(emailInput.value.trim())) {
-      errors.push('Email must be a valid email address');
+      showFieldError(emailInput, 'Please enter a valid email address');
+      isValid = false;
     }
   }
 
   // Validate phone
   if (!phoneInput || !phoneInput.value.trim() || phoneInput.value.trim().length < 5) {
-    errors.push('Phone number is required and must be valid');
+    showFieldError(phoneInput, 'Phone number is required');
+    isValid = false;
   }
 
   // Check for any HTML5 validation errors
   const allInputs = document.querySelectorAll('input, textarea, select');
   allInputs.forEach(input => {
-    if (input.validity && !input.validity.valid) {
-      const fieldName = input.name || input.placeholder || input.id || 'A field';
-      errors.push(`${fieldName}: ${input.validationMessage}`);
+    if (input.validity && !input.validity.valid && !input.classList.contains('th-error-input')) {
+      showFieldError(input, input.validationMessage || 'This field is invalid');
+      isValid = false;
     }
   });
 
-  return {
-    isValid: errors.length === 0,
-    errors: errors
-  };
+  return isValid;
 }
 
 function extractBookingInfo() {
@@ -392,11 +432,16 @@ function extractBookingInfo() {
     console.log('[TH] Payment button clicked - validating form...');
 
     // Validate form first
-    const validation = validateBookingForm();
+    const isValid = validateBookingForm();
 
-    if (!validation.isValid) {
-      console.error('[TH] Form validation failed:', validation.errors);
-      alert('❌ Please fix the following errors:\n\n' + validation.errors.join('\n'));
+    if (!isValid) {
+      console.error('[TH] Form validation failed - please check fields with errors');
+      // Scroll to first error
+      const firstError = document.querySelector('.th-error-input');
+      if (firstError) {
+        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        firstError.focus();
+      }
       return;
     }
 
@@ -405,7 +450,10 @@ function extractBookingInfo() {
     const bookingInfo = extractBookingInfo();
 
     console.log('[TH] Extracted booking info:', bookingInfo);
-    alert('✅ Booking info validated and extracted!\n\n' + JSON.stringify(bookingInfo, null, 2));
+    console.log('[TH] ✅ Ready to proceed with payment');
+
+    // TODO: Add your redirect or API call here
+    // For now, just proceed (you can add actual payment logic here)
   };
 
   // Insert custom button right before the original button
