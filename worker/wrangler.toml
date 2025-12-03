@@ -5,8 +5,13 @@ compatibility_date = "2024-01-01"
 # Public environment variables
 [vars]
 SUPERPAY_BASE_URL = "https://merchant.super-pay.com"
-SUPERPAY_MERCHANT_CODE = "SUPERPAY_MERCHANT01"
+SUPERPAY_MERCHANT_CODE = "SUPER0001582_TST"
+SUPERPAY_API_KEY = "U2vpMIEpCo"
+SUPERPAY_SECRET_KEY = "ZDAAuQOEuS"
 
 # Secrets (add via: wrangler secret put SECRET_NAME)
-# - HOSTAWAY_BEARER_TOKEN
-# - SUPERPAY_API_KEY
+# - HOSTAWAY_BEARER_TOKEN (your Hostaway API token)
+#
+# Note: For production, move SUPERPAY credentials to secrets:
+# wrangler secret put SUPERPAY_API_KEY
+# wrangler secret put SUPERPAY_SECRET_KEY

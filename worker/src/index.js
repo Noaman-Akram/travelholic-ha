@@ -154,11 +154,10 @@ async function handleCreateBooking(request, env, corsHeaders) {
   console.log('💳 Generating Superpay payment URL...');
 
   const signature = await generateSuperpaySignature(
-    env.SUPERPAY_MERCHANT_CODE,
-    reservationId.toString(),
-    totalPrice.toString(),
-    'EGP',
-    env.SUPERPAY_API_KEY
+    reservationId.toString(),  // merchantOrderId
+    totalPrice,                // amount
+    'EGP',                     // currency
+    env.SUPERPAY_SECRET_KEY    // secretKey
   );
 
   const superpayPayload = {
@@ -168,15 +167,16 @@ async function handleCreateBooking(request, env, corsHeaders) {
     },
     order: {
       merchantOrderId: reservationId.toString(),
-      amount: totalPrice,
-      currency: 'EGP',
-      description: `Reservation #${reservationId} - ${hostawayPayload.guestName}`
+      amount: parseFloat(totalPrice),
+      currency: 'EGP'
     },
-    clientId: guest.email,
-    signature: signature,
-    returnUrl: `https://travelholiceg.com/booking-success?reservationId=${reservationId}`,
-    callbackUrl: `${new URL(request.url).origin}/api/superpay-webhook`
+    signature: signature
   };
+
+  // Optional: Add clientId if email exists
+  if (guest.email) {
+    superpayPayload.clientId = guest.email;
+  }
 
   console.log('📤 Superpay payload:', JSON.stringify(superpayPayload, null, 2));
 
@@ -275,14 +275,19 @@ async function handleSuperpayWebhook(request, env, corsHeaders) {
 
 /**
  * Generate HMAC-SHA256 signature for Superpay
+ * Format: HMAC-SHA256(merchantOrderId + amount + currency, SECRET_KEY)
  */
-async function generateSuperpaySignature(merchantCode, orderId, amount, currency, apiKey) {
-  const message = `${merchantCode}|${orderId}|${amount}|${currency}|${apiKey}`;
+async function generateSuperpaySignature(merchantOrderId, amount, currency, secretKey) {
+  // Format amount with 2 decimals
+  const amountStr = parseFloat(amount).toFixed(2);
+
+  // Concatenate: merchantOrderId + amount + currency
+  const message = `${merchantOrderId}${amountStr}${currency}`;
   console.log('🔐 Generating signature for:', message);
 
   const encoder = new TextEncoder();
   const data = encoder.encode(message);
-  const keyData = encoder.encode(apiKey);
+  const keyData = encoder.encode(secretKey);
 
   const key = await crypto.subtle.importKey(
     'raw',
@@ -298,7 +303,7 @@ async function generateSuperpaySignature(merchantCode, orderId, amount, currency
     .map(b => b.toString(16).padStart(2, '0'))
     .join('');
 
-  console.log('✅ Signature generated');
+  console.log('✅ Signature generated:', hexSignature);
   return hexSignature;
 }
 
