@@ -2,40 +2,34 @@
 
 Backend Cloudflare Worker for handling Hostaway reservations and Superpay payment integration.
 
-## 🚀 Quick Deploy
+## ✅ Pre-configured
 
-### 1. Install Dependencies
+SuperPay TEST credentials are already configured:
+- ✅ Merchant Code: `SUPER0001582_TST`
+- ✅ API Key: `U2vpMIEpCo`
+- ✅ Secret Key: `ZDAAuQOEuS`
+
+**You only need to add your Hostaway token!**
+
+---
+
+## 🚀 Quick Deploy (3 Steps!)
+
+### 1. Login to Cloudflare
 
 ```bash
 cd worker
-npm install -g wrangler  # If not already installed
-```
-
-### 2. Login to Cloudflare
-
-```bash
 wrangler login
 ```
 
-### 3. Update Configuration
-
-Edit `wrangler.toml` and update:
-- `SUPERPAY_MERCHANT_CODE` - Your Superpay merchant code
-- `SUPERPAY_BASE_URL` - Confirm Superpay API URL
-
-### 4. Add Secrets
+### 2. Add Hostaway Token
 
 ```bash
-# Add Hostaway Bearer Token
 wrangler secret put HOSTAWAY_BEARER_TOKEN
-# Paste your token when prompted
-
-# Add Superpay API Key
-wrangler secret put SUPERPAY_API_KEY
-# Paste your API key when prompted
+# Paste your Hostaway Bearer Token when prompted
 ```
 
-### 5. Deploy
+### 3. Deploy
 
 ```bash
 wrangler deploy
@@ -43,9 +37,35 @@ wrangler deploy
 
 You'll get a URL like: `https://travelholic-payment.YOUR-SUBDOMAIN.workers.dev`
 
-### 6. Update Frontend
+**That's it! ✅**
 
-Copy your Worker URL and update `app.js` with it.
+---
+
+## 🧪 Test Cards
+
+Use these for testing payments:
+
+```
+Card Number: 5123450000000008
+Expiry: 01/39
+CVV: 123
+Name: test
+```
+
+---
+
+## 🔄 Moving to Production
+
+When ready for LIVE payments:
+
+1. Get your LIVE credentials from SuperPay
+2. Update `wrangler.toml`:
+   ```toml
+   SUPERPAY_MERCHANT_CODE = "YOUR_LIVE_CODE"
+   SUPERPAY_API_KEY = "YOUR_LIVE_KEY"
+   SUPERPAY_SECRET_KEY = "YOUR_LIVE_SECRET"
+   ```
+3. Redeploy: `wrangler deploy`
 
 ---
 
