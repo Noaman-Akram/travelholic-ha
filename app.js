@@ -490,23 +490,32 @@ function extractBookingInfo() {
       const bookingInfo = extractBookingInfo();
       console.log('[TH] Extracted booking info:', bookingInfo);
 
-      // TODO: Add your Worker API call here
-      // Example:
-      // const response = await fetch('https://your-worker.workers.dev/api/create-booking', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(bookingInfo)
-      // });
-      // const data = await response.json();
-      // if (data.iframeUrl) {
-      //   window.location.href = data.iframeUrl;
-      // }
+      // Call Worker API to create booking and get payment URL
+      const WORKER_URL = 'https://travelholic-payment.tech-a49.workers.dev';
 
-      // For now, simulate processing
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      console.log('[TH] Calling Worker API...');
+      const response = await fetch(`${WORKER_URL}/api/create-booking`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bookingInfo)
+      });
 
-      console.log('[TH] ✅ Ready to proceed with payment');
-      console.log('[TH] ⚠️ Worker URL not configured yet - check console for extracted data');
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('[TH] Worker API error:', errorText);
+        throw new Error(`Failed to create booking: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('[TH] Worker response:', data);
+
+      if (data.success && data.iframeUrl) {
+        console.log('[TH] ✅ Redirecting to payment page...');
+        // Redirect to SuperPay payment page
+        window.location.href = data.iframeUrl;
+      } else {
+        throw new Error(data.error || 'Failed to get payment URL');
+      }
 
     } catch (error) {
       console.error('[TH] Error processing payment:', error);
