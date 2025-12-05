@@ -142,7 +142,7 @@ async function handleCreateBooking(request, env, corsHeaders) {
   const signature = await generateSuperpaySignature(
     merchantOrderId,           // temp merchantOrderId
     totalPrice,                // amount
-    'EGP',                     // currency
+    env.SUPERPAY_CURRENCY || 'USD',  // currency
     env.SUPERPAY_SECRET_KEY    // secretKey
   );
 
@@ -154,7 +154,7 @@ async function handleCreateBooking(request, env, corsHeaders) {
     order: {
       merchantOrderId: merchantOrderId,
       amount: parseFloat(totalPrice),
-      currency: 'EGP'
+      currency: env.SUPERPAY_CURRENCY || 'USD'
     },
     signature: signature
   };
@@ -183,24 +183,34 @@ async function handleCreateBooking(request, env, corsHeaders) {
   const superpayData = await superpayResponse.json();
   console.log('✅ Superpay response:', JSON.stringify(superpayData, null, 2));
 
-  // Extract iframe URL (Superpay might return different field names)
-  const iframeUrl = superpayData.iframeUrl ||
-                    superpayData.url ||
+  // Extract iframe URL (check response status first)
+  if (superpayData.status !== 'SUCCESS') {
+    console.error('❌ Superpay returned non-success status:', superpayData);
+    throw new Error(`SuperPay error: ${superpayData.message || 'Unknown error'}`);
+  }
+
+  const iframeUrl = superpayData.url ||
+                    superpayData.iframeUrl ||
                     superpayData.paymentUrl ||
-                    superpayData.data?.iframeUrl;
+                    superpayData.data?.url;
 
   if (!iframeUrl) {
     console.error('❌ No iframe URL in response:', superpayData);
     throw new Error('Failed to get payment URL from Superpay');
   }
 
-  console.log('🎉 Success! Returning iframe URL');
+  console.log('🎉 Success! iframe URL:', iframeUrl);
+  console.log('📝 Temp merchantOrderId:', merchantOrderId);
 
   return jsonResponse({
     success: true,
     merchantOrderId,
     iframeUrl,
-    message: 'Payment URL generated. Complete payment to create reservation.'
+    message: 'Payment URL generated. Complete payment to create reservation.',
+    debug: {
+      currency: env.SUPERPAY_CURRENCY || 'USD',
+      amount: totalPrice
+    }
   }, corsHeaders);
 }
 

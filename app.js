@@ -202,16 +202,32 @@ function showPaymentModal(iframeUrl, merchantOrderId) {
   modalContent.style.cssText = `
     position: relative;
     width: 100%;
-    max-width: 600px;
-    height: 90vh;
-    max-height: 700px;
+    max-width: 500px;
+    height: 95vh;
+    max-height: 800px;
     background: white;
-    border-radius: 12px;
+    border-radius: 16px;
     overflow: hidden;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
     display: flex;
     flex-direction: column;
   `;
+
+  // Add mobile responsive styles
+  if (window.innerWidth <= 768) {
+    modalContent.style.cssText = `
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      max-height: 100vh;
+      background: white;
+      border-radius: 0;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+    `;
+  }
 
   // Create header with close button
   const header = document.createElement('div');
