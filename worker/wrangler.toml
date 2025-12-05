@@ -8,7 +8,7 @@ SUPERPAY_BASE_URL = "https://merchant.super-pay.com"
 SUPERPAY_MERCHANT_CODE = "SUPER0001582_TST"
 SUPERPAY_API_KEY = "U2vpMIEpCo"
 SUPERPAY_SECRET_KEY = "ZDAAuQOEuS"
-SUPERPAY_CURRENCY = "USD"
+SUPERPAY_CURRENCY = "EGP"  # Test mode only supports EGP - contact SuperPay to enable USD
 
 # KV Namespace for storing booking data temporarily
 [[kv_namespaces]]
