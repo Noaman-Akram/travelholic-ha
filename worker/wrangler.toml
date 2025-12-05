@@ -13,7 +13,7 @@ SUPERPAY_CURRENCY = "USD"
 # KV Namespace for storing booking data temporarily
 [[kv_namespaces]]
 binding = "BOOKING_DATA"
-id = "placeholder"  # Run: wrangler kv:namespace create "BOOKING_DATA" to get real ID
+id = "0ce01455dde645b0905ed08073857211"
 
 # Secrets (add via: wrangler secret put SECRET_NAME)
 # - HOSTAWAY_BEARER_TOKEN (your Hostaway API token)
