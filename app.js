@@ -554,7 +554,10 @@ function extractBookingInfo() {
     // Store all form data
     info.formData = formData;
 
-    // Extract pricing information from visible text
+    // Extract pricing information from visible text - IMPROVED with multiple methods
+    console.log('[TH] Extracting pricing...');
+
+    // Method 1: Look for elements with "total" in class or text
     const priceElements = document.querySelectorAll('[class*="price"], [class*="total"], [class*="cost"], [class*="amount"]');
     priceElements.forEach(el => {
       const text = el.textContent.trim();
@@ -565,6 +568,7 @@ function extractBookingInfo() {
 
         if (labelLower.includes('total')) {
           info.pricing.total = text;
+          console.log('[TH] Found total (method 1):', text);
         } else if (labelLower.includes('subtotal')) {
           info.pricing.subtotal = text;
         } else if (labelLower.includes('tax')) {
@@ -576,6 +580,29 @@ function extractBookingInfo() {
         }
       }
     });
+
+    // Method 2: Fallback - look for any text that says "Total" followed by a price
+    if (!info.pricing.total) {
+      const allText = document.body.innerText;
+      const totalMatch = allText.match(/Total\s*[:\$]?\s*\$?([0-9,]+\.?[0-9]{0,2})/i);
+      if (totalMatch) {
+        info.pricing.total = '$' + totalMatch[1].replace(/,/g, '');
+        console.log('[TH] Found total (method 2):', info.pricing.total);
+      }
+    }
+
+    // Method 3: Fallback - extract from URL if available
+    if (!info.pricing.total) {
+      const urlParams = new URL(info.url).searchParams;
+      const priceParam = urlParams.get('price') || urlParams.get('total') || urlParams.get('amount');
+      if (priceParam) {
+        info.pricing.total = '$' + priceParam;
+        console.log('[TH] Found total (method 3 - URL):', info.pricing.total);
+      }
+    }
+
+    // Log final pricing
+    console.log('[TH] Final pricing:', info.pricing);
 
     // Extract property/listing name
     const headings = document.querySelectorAll('h1, h2, h3, [class*="title"], [class*="property"], [class*="listing"]');

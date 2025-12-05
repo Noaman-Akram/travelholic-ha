@@ -83,7 +83,9 @@ async function handleCreateBooking(request, env, corsHeaders) {
   const listingMapId = listingMatch ? listingMatch[1] : null;
 
   // Extract price (remove currency symbols and parse)
+  console.log('[Worker] Raw pricing data:', pricing);
   const totalPrice = parseFloat((pricing.total || '0').replace(/[^0-9.]/g, '')) || 0;
+  console.log('[Worker] Parsed total price:', totalPrice);
 
   // Validate required fields
   if (!listingMapId) {
@@ -96,7 +98,8 @@ async function handleCreateBooking(request, env, corsHeaders) {
     throw new Error('Guest email is required');
   }
   if (totalPrice <= 0) {
-    throw new Error('Valid price is required');
+    console.error('[Worker] Price validation failed. Pricing object:', pricing, 'Parsed price:', totalPrice);
+    throw new Error(`Valid price is required. Received pricing: ${JSON.stringify(pricing)}, Parsed: ${totalPrice}`);
   }
 
   console.log('✅ Validation passed:', {
