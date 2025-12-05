@@ -57,7 +57,8 @@ async function handleRequest(request, env) {
 }
 
 /**
- * Main endpoint: Create Hostaway reservation + Generate Superpay payment URL
+ * Main endpoint: Generate Superpay payment URL (NO Hostaway reservation yet)
+ * Flow: Payment first, then create reservation in webhook if successful
  */
 async function handleCreateBooking(request, env, corsHeaders) {
   const data = await request.json();
@@ -106,11 +107,14 @@ async function handleCreateBooking(request, env, corsHeaders) {
     totalPrice
   });
 
-  // Step 1: Create reservation in Hostaway
-  console.log('📞 Creating Hostaway reservation...');
+  // Step 1: Generate temporary merchantOrderId (no Hostaway reservation yet)
+  const timestamp = Date.now();
+  const random = Math.random().toString(36).substring(2, 8);
+  const merchantOrderId = `TEMP-${timestamp}-${random}`;
+  console.log('🆔 Generated temp merchantOrderId:', merchantOrderId);
 
-  const hostawayPayload = {
-    channelId: 2000, // Direct booking channel
+  // Step 2: Store booking data in KV for webhook retrieval
+  const bookingData = {
     listingMapId: parseInt(listingMapId),
     arrivalDate,
     departureDate,
@@ -119,42 +123,21 @@ async function handleCreateBooking(request, env, corsHeaders) {
     guestEmail: guest.email,
     guestPhone: guest.phone || formData.phone || '',
     totalPrice: totalPrice,
-    status: 'new', // Will be updated to 'confirmed' after payment
-    notes: `Pending Superpay payment. Booking made at ${new Date().toISOString()}`
+    timestamp: new Date().toISOString(),
+    originalData: data  // Store full data for reference
   };
 
-  console.log('📤 Hostaway payload:', JSON.stringify(hostawayPayload, null, 2));
-
-  const reservationResponse = await fetch('https://api.hostaway.com/v1/reservations', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${env.HOSTAWAY_BEARER_TOKEN}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(hostawayPayload)
+  console.log('💾 Storing booking data in KV...');
+  await env.BOOKING_DATA.put(merchantOrderId, JSON.stringify(bookingData), {
+    expirationTtl: 3600  // Expire after 1 hour
   });
+  console.log('✅ Booking data stored');
 
-  if (!reservationResponse.ok) {
-    const errorText = await reservationResponse.text();
-    console.error('❌ Hostaway error:', errorText);
-    throw new Error(`Failed to create reservation: ${errorText}`);
-  }
-
-  const reservationData = await reservationResponse.json();
-  const reservationId = reservationData.result?.id || reservationData.id;
-
-  if (!reservationId) {
-    console.error('❌ No reservation ID in response:', reservationData);
-    throw new Error('Failed to get reservation ID from Hostaway');
-  }
-
-  console.log('✅ Hostaway reservation created:', reservationId);
-
-  // Step 2: Generate Superpay payment URL
+  // Step 3: Generate Superpay payment URL
   console.log('💳 Generating Superpay payment URL...');
 
   const signature = await generateSuperpaySignature(
-    reservationId.toString(),  // merchantOrderId
+    merchantOrderId,           // temp merchantOrderId
     totalPrice,                // amount
     'EGP',                     // currency
     env.SUPERPAY_SECRET_KEY    // secretKey
@@ -166,7 +149,7 @@ async function handleCreateBooking(request, env, corsHeaders) {
       apiKey: env.SUPERPAY_API_KEY
     },
     order: {
-      merchantOrderId: reservationId.toString(),
+      merchantOrderId: merchantOrderId,
       amount: parseFloat(totalPrice),
       currency: 'EGP'
     },
@@ -212,14 +195,15 @@ async function handleCreateBooking(request, env, corsHeaders) {
 
   return jsonResponse({
     success: true,
-    reservationId,
+    merchantOrderId,
     iframeUrl,
-    message: 'Reservation created successfully. Redirecting to payment...'
+    message: 'Payment URL generated. Complete payment to create reservation.'
   }, corsHeaders);
 }
 
 /**
  * Webhook endpoint: Handle payment status from Superpay
+ * Creates Hostaway reservation ONLY if payment is successful
  */
 async function handleSuperpayWebhook(request, env, corsHeaders) {
   const webhookData = await request.json();
@@ -232,45 +216,97 @@ async function handleSuperpayWebhook(request, env, corsHeaders) {
     transactionId
   } = webhookData;
 
+  // Retrieve booking data from KV
+  console.log('🔍 Retrieving booking data from KV...');
+  const bookingDataJson = await env.BOOKING_DATA.get(merchantOrderId);
+
+  if (!bookingDataJson) {
+    console.error('❌ No booking data found in KV for:', merchantOrderId);
+    return jsonResponse({
+      success: false,
+      message: 'Booking data not found'
+    }, corsHeaders);
+  }
+
+  const bookingData = JSON.parse(bookingDataJson);
+  console.log('✅ Booking data retrieved:', bookingData);
+
   // Check if payment was successful
   if (transactionStatus === 'SUCCESS' ||
       transactionStatus === 'PAID' ||
       transactionStatus === 'COMPLETED') {
 
-    console.log(`✅ Payment successful for reservation ${merchantOrderId}`);
+    console.log(`✅ Payment successful! Creating Hostaway reservation...`);
 
-    // Update Hostaway reservation to confirmed
+    // NOW create the Hostaway reservation
     try {
-      const updateResponse = await fetch(`https://api.hostaway.com/v1/reservations/${merchantOrderId}`, {
-        method: 'PUT',
+      const hostawayPayload = {
+        channelId: 2000, // Direct booking channel
+        listingMapId: bookingData.listingMapId,
+        arrivalDate: bookingData.arrivalDate,
+        departureDate: bookingData.departureDate,
+        numberOfGuests: bookingData.numberOfGuests,
+        guestName: bookingData.guestName,
+        guestEmail: bookingData.guestEmail,
+        guestPhone: bookingData.guestPhone,
+        totalPrice: bookingData.totalPrice,
+        status: 'confirmed', // Directly confirmed since payment is done
+        notes: `Payment confirmed via Superpay. Transaction ID: ${transactionId}. Amount: ${amount}. Temp ID: ${merchantOrderId}`
+      };
+
+      console.log('📤 Creating Hostaway reservation:', JSON.stringify(hostawayPayload, null, 2));
+
+      const reservationResponse = await fetch('https://api.hostaway.com/v1/reservations', {
+        method: 'POST',
         headers: {
           'Authorization': `Bearer ${env.HOSTAWAY_BEARER_TOKEN}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          status: 'confirmed',
-          notes: `Payment confirmed via Superpay. Transaction ID: ${transactionId}. Amount: ${amount}`
-        })
+        body: JSON.stringify(hostawayPayload)
       });
 
-      if (!updateResponse.ok) {
-        const errorText = await updateResponse.text();
-        console.error('❌ Failed to update reservation:', errorText);
-      } else {
-        console.log('✅ Reservation updated to confirmed');
+      if (!reservationResponse.ok) {
+        const errorText = await reservationResponse.text();
+        console.error('❌ Failed to create Hostaway reservation:', errorText);
+        throw new Error(`Hostaway API error: ${errorText}`);
       }
+
+      const reservationData = await reservationResponse.json();
+      const reservationId = reservationData.result?.id || reservationData.id;
+
+      console.log('🎉 Hostaway reservation created successfully! ID:', reservationId);
+
+      // Clean up KV entry
+      await env.BOOKING_DATA.delete(merchantOrderId);
+      console.log('🧹 Cleaned up KV entry');
+
+      return jsonResponse({
+        success: true,
+        message: 'Reservation created successfully',
+        reservationId
+      }, corsHeaders);
+
     } catch (error) {
-      console.error('❌ Error updating reservation:', error);
+      console.error('❌ Error creating reservation:', error);
+      return jsonResponse({
+        success: false,
+        message: 'Failed to create reservation',
+        error: error.message
+      }, corsHeaders, 500);
     }
+
   } else {
     console.log(`⚠️ Payment not successful. Status: ${transactionStatus}`);
-  }
+    console.log('🧹 Cleaning up KV entry without creating reservation');
 
-  // Always return success to Superpay
-  return jsonResponse({
-    success: true,
-    message: 'Webhook processed'
-  }, corsHeaders);
+    // Delete KV entry for failed payment
+    await env.BOOKING_DATA.delete(merchantOrderId);
+
+    return jsonResponse({
+      success: true,
+      message: 'Payment failed - no reservation created'
+    }, corsHeaders);
+  }
 }
 
 /**

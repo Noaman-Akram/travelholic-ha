@@ -9,6 +9,11 @@ SUPERPAY_MERCHANT_CODE = "SUPER0001582_TST"
 SUPERPAY_API_KEY = "U2vpMIEpCo"
 SUPERPAY_SECRET_KEY = "ZDAAuQOEuS"
 
+# KV Namespace for storing booking data temporarily
+[[kv_namespaces]]
+binding = "BOOKING_DATA"
+id = "placeholder"  # Run: wrangler kv:namespace create "BOOKING_DATA" to get real ID
+
 # Secrets (add via: wrangler secret put SECRET_NAME)
 # - HOSTAWAY_BEARER_TOKEN (your Hostaway API token)
 #

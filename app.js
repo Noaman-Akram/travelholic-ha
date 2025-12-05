@@ -177,6 +177,221 @@ function setButtonLoading(button, isLoading) {
   }
 }
 
+function showPaymentModal(iframeUrl, merchantOrderId) {
+  console.log('[TH] Creating payment modal...');
+
+  // Create modal overlay
+  const modal = document.createElement('div');
+  modal.id = 'th-payment-modal';
+  modal.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 999999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  `;
+
+  // Create modal content container
+  const modalContent = document.createElement('div');
+  modalContent.style.cssText = `
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    height: 90vh;
+    max-height: 700px;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+  `;
+
+  // Create header with close button
+  const header = document.createElement('div');
+  header.style.cssText = `
+    padding: 20px;
+    background: rgb(36, 54, 148);
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  `;
+
+  const title = document.createElement('h3');
+  title.textContent = 'Secure Payment';
+  title.style.cssText = 'margin: 0; font-size: 18px; font-weight: 600;';
+
+  const closeButton = document.createElement('button');
+  closeButton.innerHTML = '×';
+  closeButton.style.cssText = `
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 32px;
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  `;
+
+  closeButton.onclick = () => {
+    if (confirm('Are you sure you want to cancel the payment?')) {
+      document.body.removeChild(modal);
+      console.log('[TH] Payment modal closed by user');
+    }
+  };
+
+  header.appendChild(title);
+  header.appendChild(closeButton);
+
+  // Create iframe container
+  const iframeContainer = document.createElement('div');
+  iframeContainer.style.cssText = `
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+  `;
+
+  // Create iframe
+  const iframe = document.createElement('iframe');
+  iframe.src = iframeUrl;
+  iframe.style.cssText = `
+    width: 100%;
+    height: 100%;
+    border: none;
+  `;
+  iframe.setAttribute('allow', 'payment');
+
+  // Create loading indicator
+  const loadingDiv = document.createElement('div');
+  loadingDiv.style.cssText = `
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  `;
+  loadingDiv.innerHTML = `
+    <div style="font-size: 16px; color: #666;">Loading payment form...</div>
+  `;
+
+  iframe.onload = () => {
+    loadingDiv.style.display = 'none';
+    console.log('[TH] Payment iframe loaded');
+  };
+
+  iframeContainer.appendChild(loadingDiv);
+  iframeContainer.appendChild(iframe);
+
+  // Assemble modal
+  modalContent.appendChild(header);
+  modalContent.appendChild(iframeContainer);
+  modal.appendChild(modalContent);
+  document.body.appendChild(modal);
+
+  console.log('[TH] Payment modal created and displayed');
+
+  // Listen for payment completion (SuperPay might redirect or send postMessage)
+  // You can enhance this based on SuperPay's actual behavior
+  window.addEventListener('message', function(event) {
+    // Check if message is from SuperPay domain
+    if (event.origin.includes('super-pay.com')) {
+      console.log('[TH] Message from SuperPay:', event.data);
+
+      // Handle payment success/failure
+      if (event.data.status === 'success' || event.data.status === 'SUCCESS') {
+        handlePaymentSuccess(modal, merchantOrderId);
+      } else if (event.data.status === 'failed' || event.data.status === 'FAILED') {
+        handlePaymentFailure(modal);
+      }
+    }
+  });
+}
+
+function handlePaymentSuccess(modal, merchantOrderId) {
+  console.log('[TH] Payment successful!');
+
+  // Remove modal
+  document.body.removeChild(modal);
+
+  // Show success message
+  const successMsg = document.createElement('div');
+  successMsg.style.cssText = `
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    z-index: 999999;
+    text-align: center;
+    max-width: 400px;
+  `;
+  successMsg.innerHTML = `
+    <div style="font-size: 48px; margin-bottom: 20px;">✅</div>
+    <h3 style="margin: 0 0 10px 0; color: #059669;">Payment Successful!</h3>
+    <p style="margin: 0; color: #666;">Your booking has been confirmed. You will receive a confirmation email shortly.</p>
+  `;
+  document.body.appendChild(successMsg);
+
+  // Redirect after 3 seconds
+  setTimeout(() => {
+    window.location.href = 'https://travelholiceg.com/booking-success';
+  }, 3000);
+}
+
+function handlePaymentFailure(modal) {
+  console.log('[TH] Payment failed');
+
+  // Remove modal
+  document.body.removeChild(modal);
+
+  // Show error message
+  const errorMsg = document.createElement('div');
+  errorMsg.style.cssText = `
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    z-index: 999999;
+    text-align: center;
+    max-width: 400px;
+  `;
+  errorMsg.innerHTML = `
+    <div style="font-size: 48px; margin-bottom: 20px;">❌</div>
+    <h3 style="margin: 0 0 10px 0; color: #dc2626;">Payment Failed</h3>
+    <p style="margin: 0 0 20px 0; color: #666;">Your payment could not be processed. Please try again.</p>
+    <button onclick="this.parentElement.remove()" style="
+      background: rgb(36, 54, 148);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+    ">Try Again</button>
+  `;
+  document.body.appendChild(errorMsg);
+}
+
 function clearValidationErrors() {
   // Remove all existing error messages
   document.querySelectorAll('.th-error-message').forEach(el => el.remove());
@@ -510,9 +725,9 @@ function extractBookingInfo() {
       console.log('[TH] Worker response:', data);
 
       if (data.success && data.iframeUrl) {
-        console.log('[TH] ✅ Redirecting to payment page...');
-        // Redirect to SuperPay payment page
-        window.location.href = data.iframeUrl;
+        console.log('[TH] ✅ Opening payment modal...');
+        // Show payment iframe in modal popup
+        showPaymentModal(data.iframeUrl, data.merchantOrderId);
       } else {
         throw new Error(data.error || 'Failed to get payment URL');
       }
