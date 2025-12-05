@@ -1,0 +1,607 @@
+{
+	"info": {
+		"_postman_id": "f86c6bf7-5a7a-4472-a20d-278b17fa5c24",
+		"name": "SuperPay Card Payment APIs",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "44549277",
+		"_collection_link": "https://mohammedmobarak-6255175.postman.co/workspace/SuperPay~40ab5d39-25d7-4bad-8520-24ad87e525d7/collection/44549277-f86c6bf7-5a7a-4472-a20d-278b17fa5c24?action=share&source=collection_link&creator=44549277"
+	},
+	"item": [
+		{
+			"name": "key Exchange",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var session = pm.response.json().session;\r",
+							"pm.collectionVariables.set(\"session\", session);\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "operation",
+						"value": "KEY_EXCHANGE",
+						"type": "default"
+					},
+					{
+						"key": "request_UUID",
+						"value": "try123",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"merchantCode\": \"SUPERPAY_MERCHANT01\",\r\n    \"apiKey\": \"3m9QZ43pkV\",\r\n    \"requestTime\": \"2023-05-14T19:06:19.652438200\",\r\n    \"signature\": \"0dc9a55aeecd1b4128cfbf84ae768f8f210eaf623ad80c867abaf6556933c3d7\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Order_URL}}/api/1/web/keyexchange",
+					"host": [
+						"{{Order_URL}}"
+					],
+					"path": [
+						"api",
+						"1",
+						"web",
+						"keyexchange"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "key Exchange Copy",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "operation",
+								"value": "KEY_EXCHANGE",
+								"type": "default"
+							},
+							{
+								"key": "request_UUID",
+								"value": "try123",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"merchantCode\": \"SUPER001_TST\",\r\n    \"apiKey\": \"K3uAkzHvZW\",\r\n    \"requestTime\": \"2023-05-14T19:06:19.652438200\",\r\n    \"signature\": \"726bb0b9821f055b04b32de99e9bd3353c9f8ad89878dcf84bd1b5bb6d70f241\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{Order_URL}}/api/1/web/keyexchange",
+							"host": [
+								"{{Order_URL}}"
+							],
+							"path": [
+								"api",
+								"1",
+								"web",
+								"keyexchange"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Date",
+							"value": "Mon, 05 Aug 2024 07:54:02 GMT"
+						},
+						{
+							"key": "Server",
+							"value": "Apache"
+						},
+						{
+							"key": "Vary",
+							"value": "Origin,Access-Control-Request-Method,Access-Control-Request-Headers"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "content-length",
+							"value": "1446"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5, max=100"
+						},
+						{
+							"key": "Connection",
+							"value": "Keep-Alive"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"status\": \"SUCCESS\",\n    \"keyModulus\": \"c519cd0f235a425ef443426e428413b3460954512862f8b6fb3c26e3645541e5802ee0b159ec1f889cb98141d633ae5dc4324b4047679dfd061dd3a48d25f22534066415927b5b8dbc53a8c4de540df26b520a3de75efc6a1f869b3e89b0217ff241466081fc99d21348a2f755d5916c030a9f9e9305ed0f867cb310ba6ed07aa40c46a75e146abd3f9e20da7bb4bf93337a622a2220d8dca5819053ca3a933e890b866450b1e647c389e21f3c2d35f3226d0decd7250897bdeb92b2ba5e319371db337e45f2a0e0d86a253ae94974676f26e8b79c6935ff468992f1823341d656cc8b69da01040e8beba9441f159ebccfc437cdb4439ead0ccb1d79637dbe65\",\n    \"keyExponent\": \"10001\",\n    \"keyPem\": \"-----BEGIN PUBLIC KEY-----\\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxRnNDyNaQl70Q0JuQoQT\\ns0YJVFEoYvi2+zwm42RVQeWALuCxWewfiJy5gUHWM65dxDJLQEdnnf0GHdOkjSXy\\nJTQGZBWSe1uNvFOoxN5UDfJrUgo95178ah+Gmz6JsCF/8kFGYIH8mdITSKL3VdWR\\nbAMKn56TBe0PhnyzELpu0HqkDEanXhRqvT+eINp7tL+TM3piKiIg2NylgZBTyjqT\\nPokLhmRQseZHw4niHzwtNfMibQ3s1yUIl73rkrK6XjGTcdszfkXyoODYaiU66Ul0\\nZ28m6LecaTX/RomS8YIzQdZWzItp2gEEDovrqUQfFZ68z8Q3zbRDnq0Myx15Y32+\\nZQIDAQAB\\n-----END PUBLIC KEY-----\",\n    \"session\": \"eyJUWVBFIjoiS0VZX1NFU1NJT04iLCJhbGciOiJIUzM4NCJ9.eyJGT1IiOiJTVVBFUlBBWV9NRVJDSEFOVDAxIiwiZXhwIjoxNzIyODUzNDQyLCJpYXQiOjE3MjI4NDQ0NDJ9.Af7XYp94xkV6-EOJMGydp42BXY51CoXHv4mvPKjsNCWDzoqgCcrOkVpZ649WG9cM\",\n    \"creationTime\": \"2024-08-05T09:54:02.527459582\",\n    \"merchantTokenizationAllowed\": true,\n    \"merchantDownPaymentAllowed\": true,\n    \"signature\": \"c73c1e63773c1319e4ba03139ccad67a39e8c40fc913bf9bcd3b57cf075f7c18\"\n}"
+				}
+			]
+		},
+		{
+			"name": "list-client-tokens",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "session",
+						"value": "{{session}}",
+						"type": "text"
+					},
+					{
+						"key": "request_UUID",
+						"value": "request_UUIDvvvv",
+						"type": "text"
+					},
+					{
+						"key": "merchantcode",
+						"value": "SUPERPAY_MERCHANT01",
+						"type": "text"
+					},
+					{
+						"key": "apikey",
+						"value": "3m9QZ43pkV",
+						"type": "text"
+					},
+					{
+						"key": "clientid",
+						"value": "testUser01",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": []
+				},
+				"url": {
+					"raw": "{{Order_URL}}/api/1/list-client-tokens",
+					"host": [
+						"{{Order_URL}}"
+					],
+					"path": [
+						"api",
+						"1",
+						"list-client-tokens"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "list-client-tokens",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "session",
+								"value": "{{session}}",
+								"type": "text"
+							},
+							{
+								"key": "request_UUID",
+								"value": "request_UUIDvvvv",
+								"type": "text"
+							},
+							{
+								"key": "merchantcode",
+								"value": "SUPERPAY_MERCHANT01",
+								"type": "text"
+							},
+							{
+								"key": "apikey",
+								"value": "3m9QZ43pkV",
+								"type": "text"
+							},
+							{
+								"key": "clientid",
+								"value": "testUser01",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{Order_URL}}/api/1/list-client-tokens",
+							"host": [
+								"{{Order_URL}}"
+							],
+							"path": [
+								"api",
+								"1",
+								"list-client-tokens"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Date",
+							"value": "Tue, 20 Feb 2024 10:18:32 GMT"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=60"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"status\": \"SUCCESS\",\n    \"clientId\": \"testUser01\",\n    \"cardTokens\": [\n        {\n            \"cardMaskedNumber\": \"5123******0008\",\n            \"expiryMonth\": \"01\",\n            \"expiryYear\": \"39\",\n            \"token\": \"SU-te4889a527eb7744069f1417604e756895\",\n            \"status\": \"ACTIVE\"\n        }\n    ]\n}"
+				}
+			]
+		},
+		{
+			"name": "directpayorder_MOTO",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var paymentgwOrderId = pm.response.json().paymentgwOrderId;\r",
+							"pm.collectionVariables.set(\"paymentgwOrderId\", paymentgwOrderId);\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "session",
+						"value": "{{session}}",
+						"type": "default"
+					},
+					{
+						"key": "operation",
+						"value": "INITIATE _ORDER",
+						"type": "default"
+					},
+					{
+						"key": "request_UUID",
+						"value": "",
+						"type": "default",
+						"disabled": true
+					},
+					{
+						"key": "request_UUID",
+						"value": "try124",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"paymentMethod\": \"CARD\",\r\n    \"merchant\": {\r\n        \"code\": \"SUPERPAY_MERCHANT01\",\r\n        \"apiKey\": \"3m9QZ43pkV\"\r\n    },\r\n    \"order\": {\r\n        \"merchantOrderId\": \"teeeeest06\",\r\n        \"amount\": 400.00,\r\n        \"currency\": \"EGP\"\r\n    },\r\n    \"sourceOfFunds\": {\r\n        \"cardInfo\": \"{{cardInfo}}\"\r\n    },\r\n    \"signature\": \"2ae533042c1bf4c90abdf9f58bb83dbfaea1aad31e3159ff1101b207faf58511\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Order_URL}}/api/1/motodirectpayorder",
+					"host": [
+						"{{Order_URL}}"
+					],
+					"path": [
+						"api",
+						"1",
+						"motodirectpayorder"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "refund",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var paymentgwOrderId = pm.response.json().paymentgwOrderId;\r",
+							"pm.environment.set(\"paymentgwOrderId\", paymentgwOrderId);\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6InVzZXJjb21wYW55IiwiQWNjb3VudElkIjoiMSIsIm5iZiI6MTY5NzAyNTcxNiwiZXhwIjoxNjk3MDI2MzE2LCJpYXQiOjE2OTcwMjU3MTYsImlzcyI6Imh0dHBzOi8vbG9jYWxob3N0OjUwMDEiLCJhdWQiOiJodHRwczovL2xvY2FsaG9zdDo1MDAxIn0.-cu92m3sBy5XbsWeTI-Cwe7crMSdyod4jTFdqbiugpg",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "",
+						"value": "",
+						"type": "default"
+					},
+					{
+						"key": "operation",
+						"value": "REFUND_ORDER",
+						"type": "default"
+					},
+					{
+						"key": "",
+						"value": "",
+						"type": "default",
+						"disabled": true
+					},
+					{
+						"key": "",
+						"value": "",
+						"type": "default"
+					},
+					{
+						"key": "",
+						"value": "",
+						"type": "default",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\r\n    \"merchantCode\": \"SUPERPAY_MERCHANT01\",\r\n    \"paymentgwOrderId\": \"62d9cad0b54141cb88aed97997d033d6\",\r\n    \"merchantOrderId\": \"ayhagab2a0494\",\r\n    \"refundAmount\": 140,\r\n    \"currency\": \"EGP\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Order_URL}}/api/1/portal/refundorder",
+					"host": [
+						"{{Order_URL}}"
+					],
+					"path": [
+						"api",
+						"1",
+						"portal",
+						"refundorder"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "refund",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "",
+								"value": "",
+								"type": "default",
+								"disabled": true
+							},
+							{
+								"key": "operation",
+								"value": "REFUND_ORDER",
+								"type": "default"
+							},
+							{
+								"key": "",
+								"value": "",
+								"type": "default",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6InVzZXJjb21wYW55IiwiQWNjb3VudElkIjoiMSIsIm5iZiI6MTY5NzAyNTcxNiwiZXhwIjoxNjk3MDI2MzE2LCJpYXQiOjE2OTcwMjU3MTYsImlzcyI6Imh0dHBzOi8vbG9jYWxob3N0OjUwMDEiLCJhdWQiOiJodHRwczovL2xvY2FsaG9zdDo1MDAxIn0.-cu92m3sBy5XbsWeTI-Cwe7crMSdyod4jTFdqbiugpg",
+								"type": "default"
+							},
+							{
+								"key": "userSession",
+								"value": "",
+								"type": "default",
+								"disabled": true
+							},
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\r\n    \"merchantCode\": \"SUPERPAY_MERCHANT01\",\r\n    \"paymentgwOrderId\": \"4a0b02bd-500d-43af-8ccd-a36b52918e95\",\r\n    \"merchantOrderId\": \"ayhagab2a01\",\r\n    \"refundAmount\": 200,\r\n    \"currency\": \"EGP\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{Order_URL}}/api/1/refundorder",
+							"host": [
+								"{{Order_URL}}"
+							],
+							"path": [
+								"api",
+								"1",
+								"refundorder"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Date",
+							"value": "Sat, 19 Aug 2023 19:50:59 GMT"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=60"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"status\": \"SUCCESS\",\n    \"merchantOrderId\": \"ayhagab2a01\",\n    \"netAmount\": 400,\n    \"refundedAmountTillNow\": 200,\n    \"currency\": \"EGP\",\n    \"paymentgwOrderId\": \"4a0b02bd-500d-43af-8ccd-a36b52918e95\",\n    \"totalAmount\": 400,\n    \"creationTime\": \"2023-08-19T21:45:39.083402\",\n    \"updatedTime\": \"2023-08-19T21:50:58.9973301\",\n    \"orderStatus\": \"PARTIALLY_REFUNDED\",\n    \"paymentMethod\": \"CARD\",\n    \"merchantCode\": \"SUPERPAY_MERCHANT01\"\n}"
+				}
+			]
+		},
+		{
+			"name": "key Exchange",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var session = pm.response.json().session;\r",
+							"pm.collectionVariables.set(\"session\", session);\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "operation",
+						"value": "KEY_EXCHANGE",
+						"type": "default"
+					},
+					{
+						"key": "request_UUID",
+						"value": "try123",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"merchantCode\": \"SUPER001_TST\",\r\n    \"apiKey\": \"K3uAkzHvZW\",\r\n    \"requestTime\": \"2025-10-16T19:06:19.652438200\",\r\n    \"signature\": \"2246720f85a68bf343b3aaae53402df781904aeb11a95e6224d30c0e1716dd89\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://merchant.super-pay.com/ordertransaction/api/1/sts/keyexchange",
+					"protocol": "https",
+					"host": [
+						"merchant",
+						"super-pay",
+						"com"
+					],
+					"path": [
+						"ordertransaction",
+						"api",
+						"1",
+						"sts",
+						"keyexchange"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "Order_URL",
+			"value": "https://10.218.43.6/ordertransaction",
+			"type": "string"
+		},
+		{
+			"key": "session",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "cardInfo",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "paymentgwOrderId",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

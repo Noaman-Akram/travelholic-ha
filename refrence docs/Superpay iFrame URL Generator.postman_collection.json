@@ -1,0 +1,41 @@
+{
+	"info": {
+		"_postman_id": "ab61686b-ef4b-48b8-8a95-fb00951b74a5",
+		"name": "Superpay iFrame URL Generator",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "28174357"
+	},
+	"item": [
+		{
+			"name": "STS iFrame URL",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"merchant\": {\r\n        \"code\": \"SUPERPAY_MERCHANT01\",\r\n        \"apiKey\": \"3m9QZ43pkV\"\r\n    },\r\n    \"order\": {\r\n        \"merchantOrderId\": \" merchantOrderId01\",\r\n        \"amount\": 1000.00,\r\n        \"currency\": \"EGP\"\r\n    },\r\n    \"clientId\": \"customer01\",\r\n    \"signature\": \" 1cb7fdac9f62064eee92ae35bd9e0073a02b436f59050aefa31b41c54814194c\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base-url}}/ordertransaction/api/1/sts/iframe/url",
+					"host": [
+						"{{base-url}}"
+					],
+					"path": [
+						"ordertransaction",
+						"api",
+						"1",
+						"sts",
+						"iframe",
+						"url"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
