@@ -82,10 +82,16 @@ async function handleCreateBooking(request, env, corsHeaders) {
   const listingMatch = (data.url || '').match(/\/checkout\/(\d+)/);
   const listingMapId = listingMatch ? listingMatch[1] : null;
 
-  // Extract price (remove currency symbols and parse)
+  // Extract price (remove currency symbols and parse) - in USD
   console.log('[Worker] Raw pricing data:', pricing);
-  const totalPrice = parseFloat((pricing.total || '0').replace(/[^0-9.]/g, '')) || 0;
-  console.log('[Worker] Parsed total price:', totalPrice);
+  const totalPriceUSD = parseFloat((pricing.total || '0').replace(/[^0-9.]/g, '')) || 0;
+  console.log('[Worker] Parsed total price (USD):', totalPriceUSD);
+
+  // Convert USD to EGP using smart caching
+  const exchangeRate = await getExchangeRate(env);
+  const totalPriceEGP = Math.round(totalPriceUSD * exchangeRate * 100) / 100; // Round to 2 decimals
+  console.log(`💱 Exchange rate: 1 USD = ${exchangeRate} EGP`);
+  console.log(`💵 Converted: $${totalPriceUSD} USD → ${totalPriceEGP} EGP`);
 
   // Validate required fields
   if (!listingMapId) {
@@ -97,9 +103,9 @@ async function handleCreateBooking(request, env, corsHeaders) {
   if (!guest.email) {
     throw new Error('Guest email is required');
   }
-  if (totalPrice <= 0) {
-    console.error('[Worker] Price validation failed. Pricing object:', pricing, 'Parsed price:', totalPrice);
-    throw new Error(`Valid price is required. Received pricing: ${JSON.stringify(pricing)}, Parsed: ${totalPrice}`);
+  if (totalPriceUSD <= 0) {
+    console.error('[Worker] Price validation failed. Pricing object:', pricing, 'Parsed price:', totalPriceUSD);
+    throw new Error(`Valid price is required. Received pricing: ${JSON.stringify(pricing)}, Parsed: ${totalPriceUSD}`);
   }
 
   console.log('✅ Validation passed:', {
@@ -107,7 +113,9 @@ async function handleCreateBooking(request, env, corsHeaders) {
     arrivalDate,
     departureDate,
     numberOfGuests,
-    totalPrice
+    totalPriceUSD,
+    totalPriceEGP,
+    exchangeRate
   });
 
   // Step 1: Generate temporary merchantOrderId (no Hostaway reservation yet)
@@ -125,7 +133,9 @@ async function handleCreateBooking(request, env, corsHeaders) {
     guestName: guest.name || `${formData.firstName || ''} ${formData.lastName || ''}`.trim() || 'Guest',
     guestEmail: guest.email,
     guestPhone: guest.phone || formData.phone || '',
-    totalPrice: totalPrice,
+    totalPriceUSD: totalPriceUSD,      // Store original USD price
+    totalPriceEGP: totalPriceEGP,      // Store converted EGP price
+    exchangeRate: exchangeRate,        // Store exchange rate used
     timestamp: new Date().toISOString(),
     originalData: data  // Store full data for reference
   };
@@ -141,8 +151,8 @@ async function handleCreateBooking(request, env, corsHeaders) {
 
   const signature = await generateSuperpaySignature(
     merchantOrderId,           // temp merchantOrderId
-    totalPrice,                // amount
-    env.SUPERPAY_CURRENCY || 'USD',  // currency
+    totalPriceEGP,            // amount in EGP
+    'EGP',                    // currency always EGP for SuperPay
     env.SUPERPAY_SECRET_KEY    // secretKey
   );
 
@@ -153,8 +163,8 @@ async function handleCreateBooking(request, env, corsHeaders) {
     },
     order: {
       merchantOrderId: merchantOrderId,
-      amount: parseFloat(totalPrice),
-      currency: env.SUPERPAY_CURRENCY || 'USD'
+      amount: parseFloat(totalPriceEGP),
+      currency: 'EGP'
     },
     signature: signature
   };
@@ -208,8 +218,10 @@ async function handleCreateBooking(request, env, corsHeaders) {
     iframeUrl,
     message: 'Payment URL generated. Complete payment to create reservation.',
     debug: {
-      currency: env.SUPERPAY_CURRENCY || 'USD',
-      amount: totalPrice
+      priceUSD: totalPriceUSD,
+      priceEGP: totalPriceEGP,
+      exchangeRate: exchangeRate,
+      currency: 'EGP'
     }
   }, corsHeaders);
 }
@@ -262,9 +274,9 @@ async function handleSuperpayWebhook(request, env, corsHeaders) {
         guestName: bookingData.guestName,
         guestEmail: bookingData.guestEmail,
         guestPhone: bookingData.guestPhone,
-        totalPrice: bookingData.totalPrice,
+        totalPrice: bookingData.totalPriceUSD,  // Hostaway uses original USD price
         status: 'confirmed', // Directly confirmed since payment is done
-        notes: `Payment confirmed via Superpay. Transaction ID: ${transactionId}. Amount: ${amount}. Temp ID: ${merchantOrderId}`
+        notes: `Payment confirmed via Superpay. Transaction ID: ${transactionId}. Amount paid: ${bookingData.totalPriceEGP} EGP (${bookingData.totalPriceUSD} USD at rate ${bookingData.exchangeRate}). Temp ID: ${merchantOrderId}`
       };
 
       console.log('📤 Creating Hostaway reservation:', JSON.stringify(hostawayPayload, null, 2));
@@ -354,6 +366,59 @@ async function generateSuperpaySignature(merchantOrderId, amount, currency, secr
 
   console.log('✅ Signature generated:', hexSignature);
   return hexSignature;
+}
+
+/**
+ * Get USD to EGP exchange rate with smart caching
+ * Updates twice daily (12-hour cache)
+ */
+async function getExchangeRate(env) {
+  const CACHE_KEY = 'USD_TO_EGP_RATE';
+  const CACHE_DURATION = 12 * 60 * 60; // 12 hours in seconds
+  const FALLBACK_RATE = 50; // Fallback if API fails
+
+  try {
+    // Check cache first
+    const cached = await env.BOOKING_DATA.get(CACHE_KEY, { type: 'json' });
+
+    if (cached && cached.rate && cached.timestamp) {
+      const age = (Date.now() - cached.timestamp) / 1000; // Age in seconds
+
+      if (age < CACHE_DURATION) {
+        console.log(`💰 Using cached exchange rate: 1 USD = ${cached.rate} EGP (${Math.round(age / 3600)}h old)`);
+        return cached.rate;
+      }
+    }
+
+    // Fetch fresh rate from API
+    console.log('🌐 Fetching fresh exchange rate from API...');
+    const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+
+    if (!response.ok) {
+      throw new Error(`Exchange rate API returned ${response.status}`);
+    }
+
+    const data = await response.json();
+    const rate = data.rates.EGP;
+
+    if (!rate || rate <= 0) {
+      throw new Error('Invalid exchange rate received');
+    }
+
+    // Cache the new rate
+    await env.BOOKING_DATA.put(CACHE_KEY, JSON.stringify({
+      rate,
+      timestamp: Date.now()
+    }));
+
+    console.log(`✅ Fresh exchange rate cached: 1 USD = ${rate} EGP`);
+    return rate;
+
+  } catch (error) {
+    console.error('❌ Failed to fetch exchange rate:', error.message);
+    console.log(`⚠️  Using fallback rate: 1 USD = ${FALLBACK_RATE} EGP`);
+    return FALLBACK_RATE;
+  }
 }
 
 /**
