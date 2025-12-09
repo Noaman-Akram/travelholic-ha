@@ -23,24 +23,27 @@ header:not(#th-masthead) {
 
 /* Header Container */
 .th-header-wrapper {
-  position: sticky;
-  top: 0;
-  left: 0;
-  right: 0;
+  position: relative;
+  width: 100%;
   z-index: 9999;
   background: white;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  margin-bottom: 0;
 }
 
-/* Fix for map page - ensure content is below header */
+/* Make header sticky but ensure content is pushed down */
 body {
+  margin-top: 0 !important;
   padding-top: 0 !important;
 }
 
-/* Push map content down when header is sticky */
-.th-header-wrapper ~ * {
-  position: relative;
-  z-index: 1;
+/* Ensure all Hostaway content starts below header */
+#hostaway-app,
+#root,
+[data-hostaway],
+.main-content,
+main {
+  margin-top: 0 !important;
 }
 
 .th-header-wrapper .site-header {
