@@ -51,8 +51,8 @@
       document.documentElement.classList.add('th-ready');
       console.log('[TH] th-ready class added');
 
-      // Set up Google Translate (en/ar)
-      setupGoogleTranslate();
+      // Set up Google Translate (en/ar) - NEW CLEAN VERSION
+      setupCleanGoogleTranslate();
     } catch (err) {
       console.error('[TH] init error', err);
       document.documentElement.classList.remove('th-ready');
@@ -72,6 +72,7 @@
     init();
   }
 
+  // OLD VERSION - KEPT FOR REFERENCE
   function setupGoogleTranslate() {
     try {
       // Ensure body exists before injecting container
@@ -134,6 +135,114 @@
       });
     } catch (err) {
       console.error('[TH] setupGoogleTranslate error', err);
+    }
+  }
+
+  // NEW CLEAN VERSION - Better positioned, less intrusive
+  function setupCleanGoogleTranslate() {
+    try {
+      const ensureBody = document.body
+        ? Promise.resolve()
+        : new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve));
+
+      ensureBody.then(() => {
+        // Create toggle button (small, clean, bottom-right)
+        const toggleButton = document.createElement('button');
+        toggleButton.id = 'th-translate-toggle';
+        toggleButton.innerHTML = '🌐';
+        toggleButton.setAttribute('aria-label', 'Toggle language selector');
+        toggleButton.style.cssText = `
+          position: fixed;
+          bottom: 20px;
+          right: 20px;
+          width: 50px;
+          height: 50px;
+          border-radius: 50%;
+          background: rgb(36, 54, 148);
+          color: white;
+          border: none;
+          font-size: 24px;
+          cursor: pointer;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          z-index: 9998;
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        `;
+
+        // Hover effect
+        toggleButton.onmouseover = () => {
+          toggleButton.style.transform = 'scale(1.1)';
+          toggleButton.style.boxShadow = '0 6px 16px rgba(36, 54, 148, 0.3)';
+        };
+        toggleButton.onmouseout = () => {
+          toggleButton.style.transform = 'scale(1)';
+          toggleButton.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+        };
+
+        // Create container for Google Translate widget (hidden by default)
+        const targetId = 'google_translate_element';
+        const container = document.createElement('div');
+        container.id = targetId;
+        container.style.cssText = `
+          position: fixed;
+          bottom: 80px;
+          right: 20px;
+          background: white;
+          padding: 12px 16px;
+          border-radius: 8px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          z-index: 9999;
+          display: none;
+          font-size: 14px;
+          font-family: Arial, sans-serif;
+        `;
+        container.setAttribute('aria-label', 'Language selector');
+
+        // Toggle visibility
+        let isVisible = false;
+        toggleButton.onclick = () => {
+          isVisible = !isVisible;
+          container.style.display = isVisible ? 'block' : 'none';
+          toggleButton.style.transform = isVisible ? 'rotate(90deg)' : 'rotate(0deg)';
+        };
+
+        // Add to DOM
+        document.body.appendChild(toggleButton);
+        document.body.appendChild(container);
+        console.log('[TH] Clean translate button added');
+
+        // Load Google Translate script
+        if (!document.querySelector('script[data-th-google-translate]')) {
+          window.googleTranslateElementInit = window.googleTranslateElementInit || function () {
+            try {
+              /* global google */
+              new google.translate.TranslateElement(
+                {
+                  pageLanguage: 'en',
+                  includedLanguages: 'en,ar',
+                  layout: google.translate.TranslateElement.InlineLayout.HORIZONTAL,
+                },
+                targetId
+              );
+              console.log('[TH] Google Translate initialized');
+            } catch (err) {
+              console.error('[TH] googleTranslateElementInit error', err);
+            }
+          };
+
+          const s = document.createElement('script');
+          s.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+          s.defer = true;
+          s.dataset.thGoogleTranslate = '1';
+          s.onerror = err => console.error('[TH] Google Translate script load error', err);
+          document.head.appendChild(s);
+          console.log('[TH] Google Translate script requested');
+        }
+      });
+    } catch (err) {
+      console.error('[TH] setupCleanGoogleTranslate error', err);
     }
   }
 
