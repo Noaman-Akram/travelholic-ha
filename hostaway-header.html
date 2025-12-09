@@ -25,7 +25,7 @@ header:not(#th-masthead) {
 .th-header-wrapper {
   position: relative;
   width: 100%;
-  z-index: 9999;
+  z-index: 100;
   background: white;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   margin-bottom: 0;
@@ -44,6 +44,20 @@ body {
 .main-content,
 main {
   margin-top: 0 !important;
+}
+
+/* CRITICAL: Ensure map close buttons and controls are always above header */
+button[class*="close"],
+button[aria-label*="close" i],
+button[aria-label*="Close" i],
+div[class*="close"],
+.leaflet-control-container,
+.map-controls,
+[class*="map"] button,
+.sc-377dba68-1,
+.sc-377dba68-2 {
+  z-index: 10000 !important;
+  position: relative !important;
 }
 
 .th-header-wrapper .site-header {
