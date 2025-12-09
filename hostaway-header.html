@@ -1,0 +1,344 @@
+<!-- ============================================
+     TRAVELHOLIC HEADER - COMPLETE STANDALONE VERSION
+     Ready to paste into Hostaway "Top banner script"
+     ============================================ -->
+
+<style>
+/* Scoped CSS Variables for Header */
+.th-header-wrapper {
+  --ast-global-color-0: #0e4194;
+  --ast-global-color-1: #b4952b;
+  --ast-global-color-2: #0F172A;
+  --ast-global-color-3: #364151;
+  --ast-global-color-4: #FFFFFF;
+  --ast-global-color-5: #E7F6FF;
+}
+
+/* Header Container */
+.th-header-wrapper {
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 99999;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.th-header-wrapper .site-header {
+  background-color: #ffffff;
+  width: 100%;
+}
+
+/* Logo */
+.th-header-wrapper .custom-logo-link img {
+  max-width: 60px;
+  width: 60px;
+  height: auto;
+  transition: all 0.2s linear;
+}
+
+/* Primary Header Bar */
+.th-header-wrapper .ast-primary-header-bar {
+  background-color: #ffffff;
+  min-height: 70px;
+  display: flex;
+  align-items: center;
+  padding: 10px 20px;
+}
+
+.th-header-wrapper .site-primary-header-wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.th-header-wrapper .ast-builder-grid-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+/* Left Section - Logo */
+.th-header-wrapper .site-header-primary-section-left {
+  display: flex;
+  align-items: center;
+}
+
+/* Center Section - Navigation Menu */
+.th-header-wrapper .site-header-primary-section-center {
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+  justify-content: center;
+}
+
+.th-header-wrapper .main-header-menu {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 30px;
+}
+
+.th-header-wrapper .main-header-menu .menu-item {
+  list-style: none;
+}
+
+.th-header-wrapper .main-header-menu .menu-link {
+  color: var(--ast-global-color-0);
+  text-decoration: none;
+  text-transform: uppercase;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 0;
+  transition: all 0.2s ease;
+}
+
+.th-header-wrapper .main-header-menu .menu-link:hover {
+  color: var(--ast-global-color-2);
+}
+
+.th-header-wrapper .main-header-menu .current-menu-item .menu-link {
+  color: var(--ast-global-color-2);
+}
+
+/* Right Section - Book Now + Translate */
+.th-header-wrapper .site-header-primary-section-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+/* Book Now Button */
+.th-header-wrapper .ast-header-button-1 .ast-custom-button {
+  font-family: 'Century Gothic', Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  text-transform: capitalize;
+  padding: 12px 20px;
+  color: #ffffff;
+  background: var(--ast-global-color-0);
+  border: 1px solid #ffffff;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.th-header-wrapper .ast-header-button-1 .ast-custom-button:hover {
+  background: #b4952b;
+  color: var(--ast-global-color-4);
+}
+
+/* Translate Button */
+.th-header-wrapper .th-translate-btn {
+  background: var(--ast-global-color-0);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 18px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.th-header-wrapper .th-translate-btn:hover {
+  background: #b4952b;
+  transform: translateY(-2px);
+}
+
+.th-header-wrapper .th-translate-dropdown {
+  position: absolute;
+  top: 60px;
+  right: 20px;
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  z-index: 999999;
+  display: none;
+}
+
+.th-header-wrapper .th-translate-dropdown.active {
+  display: block;
+}
+
+/* Mobile Menu Toggle */
+.th-header-wrapper .menu-toggle {
+  display: none;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.th-header-wrapper .mobile-menu-toggle-icon svg {
+  width: 24px;
+  height: 24px;
+  fill: var(--ast-global-color-0);
+}
+
+/* Mobile Styles */
+@media (max-width: 921px) {
+  .th-header-wrapper .site-header-primary-section-center {
+    display: none;
+  }
+
+  .th-header-wrapper .menu-toggle {
+    display: block;
+  }
+
+  .th-header-wrapper .custom-logo-link img {
+    max-width: 50px;
+    width: 50px;
+  }
+
+  .th-header-wrapper .ast-header-button-1 .ast-custom-button {
+    font-size: 14px;
+    padding: 10px 16px;
+  }
+
+  .th-header-wrapper .ast-primary-header-bar {
+    padding: 10px 15px;
+  }
+}
+
+@media (max-width: 544px) {
+  .th-header-wrapper .ast-header-button-1 .ast-custom-button {
+    font-size: 12px;
+    padding: 8px 12px;
+  }
+
+  .th-header-wrapper .th-translate-btn {
+    padding: 8px 10px;
+    font-size: 16px;
+  }
+}
+</style>
+
+<!-- Header HTML -->
+<div class="th-header-wrapper">
+  <header class="site-header" id="th-masthead">
+    <div class="ast-main-header-wrap">
+      <div class="ast-primary-header-bar">
+        <div class="site-primary-header-wrap">
+          <div class="ast-builder-grid-row">
+
+            <!-- Left: Logo -->
+            <div class="site-header-primary-section-left">
+              <div class="site-branding">
+                <span class="site-logo-img">
+                  <a href="https://travelholiceg.com/" class="custom-logo-link">
+                    <img width="60" height="60"
+                         src="https://travelholiceg.com/wp-content/uploads/2025/10/cropped-cropped-Logo_1@4x-60x60.png"
+                         class="custom-logo"
+                         alt="travelholiceg.com">
+                  </a>
+                </span>
+              </div>
+            </div>
+
+            <!-- Center: Navigation Menu -->
+            <div class="site-header-primary-section-center">
+              <nav class="site-navigation">
+                <ul class="main-header-menu">
+                  <li class="menu-item">
+                    <a href="https://travelholiceg.com/" class="menu-link">Home</a>
+                  </li>
+                  <li class="menu-item">
+                    <a href="https://travelholiceg.com/experiences/" class="menu-link">Experiences</a>
+                  </li>
+                  <li class="menu-item">
+                    <a href="https://travelholiceg.com/about/" class="menu-link">About Us</a>
+                  </li>
+                  <li class="menu-item">
+                    <a href="https://travelholiceg.com/invest-with-us/" class="menu-link">Invest with us</a>
+                  </li>
+                  <li class="menu-item">
+                    <a href="https://travelholiceg.com/contact/" class="menu-link">Contact</a>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+
+            <!-- Right: Book Now Button + Translate -->
+            <div class="site-header-primary-section-right">
+              <!-- Book Now Button -->
+              <div class="ast-header-button-1">
+                <a href="https://book.travelholiceg.com/search" class="ast-custom-button">
+                  Book Now
+                </a>
+              </div>
+
+              <!-- Translate Button -->
+              <button class="th-translate-btn" id="th-translate-toggle" aria-label="Toggle language">
+                🌐
+              </button>
+              <div class="th-translate-dropdown" id="th-translate-dropdown">
+                <div id="google_translate_element"></div>
+              </div>
+
+              <!-- Mobile Menu Toggle (hidden on desktop) -->
+              <button type="button" class="menu-toggle" aria-label="Menu">
+                <span class="mobile-menu-toggle-icon">
+                  <svg fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M3 13h18c0.552 0 1-0.448 1-1s-0.448-1-1-1h-18c-0.552 0-1 0.448-1 1s0.448 1 1 1zM3 7h18c0.552 0 1-0.448 1-1s-0.448-1-1-1h-18c-0.552 0-1 0.448-1 1s0.448 1 1 1zM3 19h18c0.552 0 1-0.448 1-1s-0.448-1-1-1h-18c-0.552 0-1 0.448-1 1s0.448 1 1 1z"></path>
+                  </svg>
+                </span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  // Toggle translate dropdown
+  const translateBtn = document.getElementById('th-translate-toggle');
+  const translateDropdown = document.getElementById('th-translate-dropdown');
+
+  if (translateBtn && translateDropdown) {
+    translateBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      translateDropdown.classList.toggle('active');
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+      if (!translateDropdown.contains(e.target) && !translateBtn.contains(e.target)) {
+        translateDropdown.classList.remove('active');
+      }
+    });
+  }
+
+  // Initialize Google Translate
+  if (!window.googleTranslateElementInit) {
+    window.googleTranslateElementInit = function() {
+      if (typeof google !== 'undefined' && google.translate) {
+        new google.translate.TranslateElement({
+          pageLanguage: 'en',
+          includedLanguages: 'en,ar',
+          layout: google.translate.TranslateElement.InlineLayout.HORIZONTAL
+        }, 'google_translate_element');
+      }
+    };
+
+    // Load Google Translate script
+    const script = document.createElement('script');
+    script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+    script.defer = true;
+    document.head.appendChild(script);
+  }
+})();
+</script>

@@ -51,8 +51,8 @@
       document.documentElement.classList.add('th-ready');
       console.log('[TH] th-ready class added');
 
-      // Set up Google Translate (en/ar) - NEW CLEAN VERSION
-      setupCleanGoogleTranslate();
+      // Set up Google Translate (en/ar) - DISABLED (now in header via Top banner script)
+      // setupCleanGoogleTranslate();
     } catch (err) {
       console.error('[TH] init error', err);
       document.documentElement.classList.remove('th-ready');
