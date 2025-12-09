@@ -53,6 +53,9 @@
 
       // Set up Google Translate (en/ar) - DISABLED (now in header via Top banner script)
       // setupCleanGoogleTranslate();
+
+      // Fix map X button position - push it down below header
+      injectMapButtonFix();
     } catch (err) {
       console.error('[TH] init error', err);
       document.documentElement.classList.remove('th-ready');
@@ -135,6 +138,47 @@
       });
     } catch (err) {
       console.error('[TH] setupGoogleTranslate error', err);
+    }
+  }
+
+  // Fix map X button position - move it below the header
+  function injectMapButtonFix() {
+    try {
+      // Check if style already exists
+      if (document.getElementById('th-map-button-fix')) {
+        console.log('[TH] Map button fix already applied');
+        return;
+      }
+
+      // Create style element
+      const style = document.createElement('style');
+      style.id = 'th-map-button-fix';
+      style.textContent = `
+        /* Push map close button down below header */
+        .sc-377dba68-1.hoJYXA {
+          top: 90px !important;
+          position: absolute !important;
+        }
+
+        .sc-377dba68-2.keqDuY {
+          z-index: 10000 !important;
+        }
+
+        /* Alternative selector for map close buttons */
+        div[class*="sc-377dba68-1"] {
+          top: 90px !important;
+        }
+
+        /* Ensure all map controls are below header */
+        .leaflet-top {
+          top: 80px !important;
+        }
+      `;
+
+      document.head.appendChild(style);
+      console.log('[TH] Map button fix injected');
+    } catch (err) {
+      console.error('[TH] Error injecting map button fix:', err);
     }
   }
 
