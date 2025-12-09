@@ -4,6 +4,13 @@
      ============================================ -->
 
 <style>
+/* Hide Hostaway's default header to prevent double header */
+#hostaway-navbar,
+.hostaway-header,
+header:not(#th-masthead) {
+  display: none !important;
+}
+
 /* Scoped CSS Variables for Header */
 .th-header-wrapper {
   --ast-global-color-0: #0e4194;
@@ -20,9 +27,20 @@
   top: 0;
   left: 0;
   right: 0;
-  z-index: 99999;
+  z-index: 9999;
   background: white;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Fix for map page - ensure content is below header */
+body {
+  padding-top: 0 !important;
+}
+
+/* Push map content down when header is sticky */
+.th-header-wrapper ~ * {
+  position: relative;
+  z-index: 1;
 }
 
 .th-header-wrapper .site-header {
@@ -235,9 +253,11 @@
                 <span class="site-logo-img">
                   <a href="https://travelholiceg.com/" class="custom-logo-link">
                     <img width="60" height="60"
-                         src="https://travelholiceg.com/wp-content/uploads/2025/10/cropped-cropped-Logo_1@4x-60x60.png"
+                         srcset="https://bookingenginecdn.hostaway.com/account/attachment/42498-bd8X2shN6wOv--GQbIaa8zd2G0c5F2A6Lx41XR4UNQlM-691a2c0aa0ca8?width=300&quality=70&format=webp&v=2 1x, https://bookingenginecdn.hostaway.com/account/attachment/42498-bd8X2shN6wOv--GQbIaa8zd2G0c5F2A6Lx41XR4UNQlM-691a2c0aa0ca8?width=600&quality=70&format=webp&v=2 2x"
+                         src="https://hostaway-platform.s3.us-west-2.amazonaws.com/account/attachment/42498-bd8X2shN6wOv--GQbIaa8zd2G0c5F2A6Lx41XR4UNQlM-691a2c0aa0ca8?rand=bebsv91rzf"
                          class="custom-logo"
-                         alt="travelholiceg.com">
+                         alt="travelholiceg.com"
+                         loading="eager">
                   </a>
                 </span>
               </div>
